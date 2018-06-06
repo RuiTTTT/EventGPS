@@ -6,13 +6,58 @@
     android:layout_height="match_parent"
     tools:context="com.example.rui.eventgps.MapActivity">
 
-    <TextView
-        android:layout_width="wrap_content"
+
+    <RelativeLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Hello World!"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_marginTop="15dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:id="@+id/relLayout">
+
+        <AutoCompleteTextView
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:id="@+id/startText"
+            android:layout_centerHorizontal="true"
+            android:textSize="15sp"
+            android:textColor="#000"
+            android:background="@null"
+            android:hint="Choose Starting Point"
+            android:imeOptions="actionSearch"/>
+
+        <AutoCompleteTextView
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:id="@+id/desText"
+            android:layout_below="@+id/startText"
+            android:layout_marginTop="10dp"
+            android:layout_centerHorizontal="true"
+            android:textSize="15sp"
+            android:textColor="#000"
+            android:background="@null"
+            android:hint="Choose Destination"
+            android:imeOptions="actionSearch"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="120dp"
+            android:id="@+id/startTextView"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@+id/desText"
+            android:layout_marginTop="20dp"
+            android:textSize="15sp"
+            android:textColor="#000" />
+
+        <fragment xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:tools="http://schemas.android.com/tools"
+            android:layout_width="match_parent"
+            android:layout_height="300dp"
+            android:id="@+id/map"
+            tools:context=".SearchActivity"
+            android:name="com.google.android.gms.maps.SupportMapFragment"
+            android:layout_below="@+id/startTextView"/>
+
+    </RelativeLayout>
 
 </android.support.constraint.ConstraintLayout>

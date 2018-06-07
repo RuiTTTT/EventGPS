@@ -23,7 +23,7 @@
             android:textSize="15sp"
             android:textColor="#000"
             android:background="@null"
-            android:hint="Choose Starting Point"
+            android:text="Your location"
             android:imeOptions="actionSearch"/>
 
         <AutoCompleteTextView
@@ -39,15 +39,6 @@
             android:hint="Choose Destination"
             android:imeOptions="actionSearch"/>
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="120dp"
-            android:id="@+id/startTextView"
-            android:layout_centerHorizontal="true"
-            android:layout_below="@+id/desText"
-            android:layout_marginTop="20dp"
-            android:textSize="15sp"
-            android:textColor="#000" />
 
         <fragment xmlns:android="http://schemas.android.com/apk/res/android"
             xmlns:tools="http://schemas.android.com/tools"
@@ -56,7 +47,7 @@
             android:id="@+id/map"
             tools:context=".SearchActivity"
             android:name="com.google.android.gms.maps.SupportMapFragment"
-            android:layout_below="@+id/startTextView"/>
+            android:layout_below="@+id/desText"/>
 
     </RelativeLayout>
 

@@ -13,41 +13,79 @@
         android:layout_marginTop="15dp"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
-        android:id="@+id/relLayout">
+        android:id="@+id/relLayout"
+        android:focusable="true"
+        android:focusableInTouchMode="true">
 
-        <AutoCompleteTextView
+        <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="50dp"
-            android:id="@+id/startText"
-            android:layout_centerHorizontal="true"
-            android:textSize="15sp"
-            android:textColor="#000"
-            android:background="@null"
-            android:text="Your location"
-            android:imeOptions="actionSearch"/>
+            android:id="@+id/frameStart">
 
-        <AutoCompleteTextView
+            <AutoCompleteTextView
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:id="@+id/startText"
+                android:layout_centerHorizontal="true"
+                android:textSize="15sp"
+                android:textColor="#000"
+                android:background="@null"
+                android:text="Your location"
+                android:imeOptions="actionSearch"
+                android:dropDownHeight="wrap_content"
+                android:layout_marginRight="33dp"/>
+
+            <Button
+                android:id="@+id/clearStart"
+                android:layout_width="23dp"
+                android:layout_height="23dp"
+                android:layout_marginRight="10dp"
+                android:layout_gravity="right|bottom"
+                android:layout_marginBottom="10dp"
+                android:onClick="clearStart"
+                android:background="@drawable/ic_clear_black_24dp"/>
+        </FrameLayout>
+
+        <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="50dp"
-            android:id="@+id/desText"
-            android:layout_below="@+id/startText"
-            android:layout_marginTop="10dp"
-            android:layout_centerHorizontal="true"
-            android:textSize="15sp"
-            android:textColor="#000"
-            android:background="@null"
-            android:hint="Choose Destination"
-            android:imeOptions="actionSearch"/>
+            android:id="@+id/frameDes"
+            android:layout_below="@+id/frameStart">
 
+            <AutoCompleteTextView
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:id="@+id/desText"
+                android:layout_marginTop="10dp"
+                android:layout_centerHorizontal="true"
+                android:textSize="15sp"
+                android:textColor="#000"
+                android:background="@null"
+                android:hint="Choose Destination"
+                android:imeOptions="actionSearch"
+                android:layout_marginRight="33dp"/>
+
+            <Button
+                android:id="@+id/clearDes"
+                android:layout_width="23dp"
+                android:layout_height="23dp"
+                android:layout_marginRight="10dp"
+                android:layout_gravity="right|bottom"
+                android:layout_marginBottom="10dp"
+                android:onClick="clearDes"
+                android:background="@drawable/ic_clear_black_24dp"/>
+
+        </FrameLayout>
 
         <fragment xmlns:android="http://schemas.android.com/apk/res/android"
             xmlns:tools="http://schemas.android.com/tools"
             android:layout_width="match_parent"
-            android:layout_height="300dp"
+            android:layout_height="wrap_content"
             android:id="@+id/map"
             tools:context=".SearchActivity"
             android:name="com.google.android.gms.maps.SupportMapFragment"
-            android:layout_below="@+id/desText"/>
+            android:layout_below="@+id/frameDes"
+            android:layout_marginBottom="10dp"/>
 
     </RelativeLayout>
 

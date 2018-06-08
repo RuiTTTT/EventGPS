@@ -2,6 +2,7 @@ package com.example.rui.eventgps;
 
 import android.Manifest;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
@@ -11,10 +12,15 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.View;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AutoCompleteTextView;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -32,9 +38,7 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -46,6 +50,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private Boolean mLocationPermission;
     private AutoCompleteTextView mStartText;
     private AutoCompleteTextView mDesText;
+    private Button clearStart;
+    private Button clearDes;
     private GoogleApiClient mGoogleApiClient;
     private PlaceAutocompleteAdapter mPlaceAutocompleteAdapter;
     private FusedLocationProviderClient mFusedLocationProviderClient;
@@ -62,12 +68,71 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
         mStartText = (AutoCompleteTextView) findViewById(R.id.startText);
         mDesText = (AutoCompleteTextView) findViewById(R.id.desText);
+        clearStart = (Button) findViewById(R.id.clearStart);
+        clearDes = (Button) findViewById(R.id.clearDes);
+        clearStart.setVisibility(View.INVISIBLE);
+        clearDes.setVisibility(View.INVISIBLE);
+
 
         mStartText.setSingleLine();
         mDesText.setSingleLine();
 
+        mStartText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if(s.length() != 0) {
+                    clearStart.setVisibility(View.VISIBLE);
+                } else {
+                    clearStart.setVisibility(View.GONE);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+
+        mDesText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if(s.length() != 0) {
+                    clearDes.setVisibility(View.VISIBLE);
+                } else {
+                    clearDes.setVisibility(View.GONE);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+
         checkGoogleService();
         getLoactionPermission();
+    }
+
+    public void clearStart(View view) {
+        mStartText.setText("");
+        clearStart.setVisibility(View.GONE);
+        hideKeyboard();
+    }
+
+    public void clearDes(View view) {
+        mDesText.setText("");
+        clearDes.setVisibility(View.GONE);
+        hideKeyboard();
     }
 
     private boolean checkGoogleService() {
@@ -211,6 +276,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     public void searchLocation(AutoCompleteTextView searchView) {
         String searchTerm = searchView.getText().toString();
+        hideKeyboard();
         Geocoder geocoder = new Geocoder(this);
         List<Address> returnList = new ArrayList<>();
         try {
@@ -227,6 +293,11 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             mMap.addMarker(options);
 
         }
+    }
+
+    private void hideKeyboard() {
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(mStartText.getWindowToken(), 0);
     }
 
     private void getDeviceLocation() {

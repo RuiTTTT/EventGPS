@@ -33,7 +33,7 @@ public class LaunchActivity extends AwesomeSplash{
 
     @Override
     public void animationsFinished() {
-        startActivity(new Intent(LaunchActivity.this, MapActivity.class));
+        startActivity(new Intent(LaunchActivity.this, MapEventActivity.class));
         finishAfterTransition();//Make sure the launch screen only showed once.
     }
 

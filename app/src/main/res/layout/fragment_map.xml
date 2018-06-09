@@ -1,25 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context="com.example.rui.eventgps.MapActivity">
 
-
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="15dp"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        android:id="@+id/relLayout"
-        android:focusable="true"
-        android:focusableInTouchMode="true">
+<RelativeLayout android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="15dp"
+    android:layout_marginLeft="10dp"
+    android:layout_marginRight="10dp"
+    android:id="@+id/relLayout"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
+    xmlns:android="http://schemas.android.com/apk/res/android">
 
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="50dp"
+            android:layout_marginTop="40dp"
             android:id="@+id/frameStart">
 
             <AutoCompleteTextView
@@ -32,7 +26,6 @@
                 android:background="@null"
                 android:text="Your location"
                 android:imeOptions="actionSearch"
-                android:dropDownHeight="wrap_content"
                 android:layout_marginRight="33dp"/>
 
             <Button
@@ -42,7 +35,6 @@
                 android:layout_marginRight="10dp"
                 android:layout_gravity="right|bottom"
                 android:layout_marginBottom="10dp"
-                android:onClick="clearStart"
                 android:background="@drawable/ic_cancel_black_24dp"/>
         </FrameLayout>
 
@@ -72,21 +64,17 @@
                 android:layout_marginRight="10dp"
                 android:layout_gravity="right|bottom"
                 android:layout_marginBottom="10dp"
-                android:onClick="clearDes"
                 android:background="@drawable/ic_cancel_black_24dp"/>
 
         </FrameLayout>
 
-        <fragment xmlns:android="http://schemas.android.com/apk/res/android"
+        <com.google.android.gms.maps.MapView
             xmlns:tools="http://schemas.android.com/tools"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/map"
             tools:context=".SearchActivity"
-            android:name="com.google.android.gms.maps.SupportMapFragment"
             android:layout_below="@+id/frameDes"
             android:layout_marginBottom="10dp"/>
 
-    </RelativeLayout>
-
-</android.support.constraint.ConstraintLayout>
+</RelativeLayout>

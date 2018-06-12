@@ -36,6 +36,7 @@ public class EventFragment extends Fragment implements OnMapReadyCallback {
     private static final LatLng AMVASSADOR = new LatLng(53.352809, -6.261987);
     private static final LatLng RDS = new LatLng(53.3257, -6.2297);
     private static final LatLng BORD = new LatLng(53.344201, -6.240274);
+    private List<EventItem> eventList = new ArrayList<>();
     private static final float DEFAULT_ZOOM = 12f;
     private List<LatLng> mList = new ArrayList<>();
 
@@ -60,11 +61,13 @@ public class EventFragment extends Fragment implements OnMapReadyCallback {
         mMap.getUiSettings().setZoomControlsEnabled(true);
         mMap.getUiSettings().setCompassEnabled(true);
 
-        mMap.addMarker(new MarkerOptions().position(ARENA3).title("3 Arena, Demi Lovato, 18:30"));
-        mMap.addMarker(new MarkerOptions().position(AVIVA).title("Aviva Stadium, Guinness PRO14, 18:00"));
-        mMap.addMarker(new MarkerOptions().position(AMVASSADOR).title("Ambassador Theatre, Dinosaurs Around the World, 10:00"));
-        mMap.addMarker(new MarkerOptions().position(RDS).title("RDS, Dublin Horse Show, 9:00"));
-        mMap.addMarker(new MarkerOptions().position(BORD).title("Bord Gais Energy Theatre, Wicked 2018, 19:30"));
+        eventList.add(new EventItem("3 Arena", "Demi Lovate", "18:30", ARENA3));
+        eventList.add(new EventItem("Aviva Stadium", "Guinness PRO14", "18:00", AVIVA));
+        eventList.add(new EventItem("Ambassador Theatre", "Dinosaurs Around the World", "10:00", AMVASSADOR));
+        eventList.add(new EventItem("RDS", "Dublin Horse Show", "9:00", RDS));
+        eventList.add(new EventItem("Bord Gais Energy Theatre", "Wicked 2018", "19:30", BORD));
+        addEventOnMap(eventList);
+
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(DUBLIN, DEFAULT_ZOOM));
 
         mList.add(new LatLng(53.35070589999999, -6.2605315));
@@ -104,5 +107,12 @@ public class EventFragment extends Fragment implements OnMapReadyCallback {
         //BOUND_PADDING is an int to specify padding of bound.. try 100.
         CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, 100);
         mMap.animateCamera(cu);
+    }
+
+    private void addEventOnMap(List<EventItem> list) {
+        for (EventItem item : list) {
+            mMap.addMarker(new MarkerOptions().position(item.getLatLng()).title(item.getInfo()));
+        }
+
     }
 }

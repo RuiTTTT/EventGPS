@@ -36,6 +36,6 @@ public class EventItem {
     }
 
     public String getInfo() {
-        return (venue + ", " + title + ", " + time);
+        return ("Event: " + title + " Start Time: " + time);
     }
 }

@@ -1,14 +1,23 @@
 package com.example.rui.eventgps;
 
+import android.content.Context;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.nfc.Tag;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.widget.PopupWindow;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.common.util.CrashUtils;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -16,17 +25,20 @@ import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static android.content.ContentValues.TAG;
+
 /**
  * Created by ray on 2018/6/9.
  */
 
-public class EventFragment extends Fragment implements OnMapReadyCallback {
+public class EventFragment extends Fragment implements OnMapReadyCallback, GoogleMap.OnInfoWindowClickListener {
     View myView;
     private MapView mMapView;
     private GoogleMap mMap;
@@ -67,6 +79,11 @@ public class EventFragment extends Fragment implements OnMapReadyCallback {
         eventList.add(new EventItem("RDS", "Dublin Horse Show", "9:00", RDS));
         eventList.add(new EventItem("Bord Gais Energy Theatre", "Wicked 2018", "19:30", BORD));
         addEventOnMap(eventList);
+
+        CustomInfoWindowAdapter customInfoWindow = new CustomInfoWindowAdapter(getContext());
+        mMap.setInfoWindowAdapter(customInfoWindow);
+
+        mMap.setOnInfoWindowClickListener(this);
 
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(DUBLIN, DEFAULT_ZOOM));
 
@@ -111,8 +128,52 @@ public class EventFragment extends Fragment implements OnMapReadyCallback {
 
     private void addEventOnMap(List<EventItem> list) {
         for (EventItem item : list) {
-            mMap.addMarker(new MarkerOptions().position(item.getLatLng()).title(item.getInfo()));
+            Marker m = mMap.addMarker(new MarkerOptions().position(item.getLatLng()).title(item.getVenue()));
+            m.setTag(item);
         }
 
+    }
+
+    @Override
+    public void onInfoWindowClick(Marker marker) {
+        Toast.makeText(getContext(), "click info window", Toast.LENGTH_SHORT).show();
+        View v = getView();
+        //showPopup(v);
+    }
+
+    public void showPopup(View anchorView) {
+
+        View popupView = getLayoutInflater().inflate(R.layout.popup_layout, null);
+
+        PopupWindow popupWindow = new PopupWindow(popupView,
+                ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+
+        // Example: If you have a TextView inside `popup_layout.xml`
+        TextView tv = (TextView) popupView.findViewById(R.id.venue);
+
+        tv.setText("aaa");
+
+
+        // If the PopupWindow should be focusable
+        popupWindow.setFocusable(true);
+
+        // If you need the PopupWindow to dismiss when when touched outside
+        popupWindow.setBackgroundDrawable(new ColorDrawable());
+
+
+
+//        int location[] = new int[2];
+//
+//        // Get the View's(the one that was clicked in the Fragment) location
+//        anchorView.getLocationOnScreen(location);
+//
+//        // Using location, the PopupWindow will be displayed right under anchorView
+//        popupWindow.showAtLocation(anchorView, Gravity.NO_GRAVITY,
+//                location[0], location[1]);
+//        Log.d(TAG, Integer.toString(location[0]));
+        int mWidth= this.getResources().getDisplayMetrics().widthPixels;
+        int mHeight= this.getResources().getDisplayMetrics().heightPixels;
+        Log.d(TAG,  Integer.toString(mWidth)+Integer.toString(mHeight));
+        popupWindow.showAtLocation(anchorView, Gravity.NO_GRAVITY, mWidth/4, mHeight/4);
     }
 }

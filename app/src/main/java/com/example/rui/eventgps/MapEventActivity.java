@@ -24,6 +24,8 @@ public class MapEventActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map_event);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar.setTitle("EventGPS");
+        toolbar.setLogo(R.drawable.ic_logo_icon_action);
         setSupportActionBar(toolbar);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -49,6 +51,11 @@ public class MapEventActivity extends AppCompatActivity
         fragmentTransaction.replace(R.id.fragment_container, mMapFragment);
         fragmentTransaction.commit();
 
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        return false;
     }
 
     @Override

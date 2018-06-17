@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -23,6 +24,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.TextView;
@@ -31,9 +33,12 @@ import android.widget.Toast;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.util.HttpUtils;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.places.AutocompletePrediction;
 import com.google.android.gms.location.places.Places;
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
@@ -42,11 +47,18 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by ray on 2018/6/9.
@@ -56,19 +68,20 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
     View myView;
     private MapView mMapView;
     private GoogleMap mMap;
-    private Boolean mLocationPermission;
     private AutoCompleteTextView mStartText;
     private AutoCompleteTextView mDesText;
     private Button clearStart;
     private Button clearDes;
+    private Button go;
     private GoogleApiClient mGoogleApiClient;
     private PlaceAutocompleteAdapter mPlaceAutocompleteAdapter;
     private FusedLocationProviderClient mFusedLocationProviderClient;
     private static final String TAG = "MapActivity";
-    private static final int LOC_PERMISSION_REQUEST_CODE = 9002;
     private static final float DEFAULT_ZOOM = 10f;
     private static final LatLng DUBLIN = new LatLng(53.35, -6.26);
     private static final LatLngBounds LAT_LNG_BOUNDS = new LatLngBounds(new LatLng(-40, -168), new LatLng(71, 136));
+    private List<LatLng> mList = new ArrayList<>();
+    private Map<String,String> mSearchData = new HashMap<>();
 
     @Nullable
     @Override
@@ -85,6 +98,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
         clearDes = (Button) myView.findViewById(R.id.clearDes);
         clearStart.setVisibility(View.INVISIBLE);
         clearDes.setVisibility(View.INVISIBLE);
+        go = (Button) myView.findViewById(R.id.go);
 
         mStartText.setSingleLine();
         mDesText.setSingleLine();
@@ -149,8 +163,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
             }
         });
 
-        checkGoogleService();
-        getLoactionPermission();
+        initMap();
+        initSearch();
+
+
 
         return myView;
     }
@@ -163,72 +179,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
         mGoogleApiClient.disconnect();
     }
 
-    private boolean checkGoogleService() {
-        Log.d(TAG, "Check google services version");
-        int isAvailable = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(getContext());
-
-        if (isAvailable == ConnectionResult.SUCCESS) {
-            Log.d(TAG, "Google Play Services is working");
-            return true;
-        } else if (GoogleApiAvailability.getInstance().isUserResolvableError(isAvailable)) {
-            //an error occured but we can resolve it
-            Log.d(TAG, "UserResolvableError");
-            Dialog dialog = GoogleApiAvailability.getInstance().getErrorDialog(getActivity(), isAvailable, 9001);
-            dialog.show();
-        } else {
-            Toast.makeText(getContext(), "Google Play Service Unavailable", Toast.LENGTH_SHORT).show();
-        }
-        return false;
-    }
-
-    private void getLoactionPermission() {
-        String[] locationPermission = {Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION};
-        if (ContextCompat.checkSelfPermission(getContext().getApplicationContext(),
-                Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            if (ContextCompat.checkSelfPermission(getContext().getApplicationContext(),
-                    Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-                mLocationPermission = true;
-                //initMap();
-                initSearch();
-            } else {
-                ActivityCompat.requestPermissions(getActivity(), locationPermission, LOC_PERMISSION_REQUEST_CODE);
-            }
-        } else {
-            ActivityCompat.requestPermissions(getActivity(), locationPermission, LOC_PERMISSION_REQUEST_CODE);
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        //super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        mLocationPermission = false;
-
-        switch (requestCode) {
-            case LOC_PERMISSION_REQUEST_CODE: {
-                if (grantResults.length > 0) {
-                    for (int i = 0; i < grantResults.length; i++) {
-                        if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
-                            mLocationPermission = false;
-                            return;
-                        }
-                    }
-                    mLocationPermission = true;
-                    initMap();
-                    initSearch();
-                }
-            }
-        }
-    }
-
     private void initMap() {
-        // Get the SupportMapFragment and request notification
-        // when the map is ready to be used.
-//        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-//                .findFragmentById(R.id.map);
-//        mMapView = (MapView) myView.findViewById(R.id.map);
-//        mMapView.onCreate(savedInstanceState);
-//        mMapView.getMapAsync((OnMapReadyCallback) getContext());
-        //mapFragment.getMapAsync((OnMapReadyCallback) getContext());
+
     }
 
     @Override
@@ -238,7 +190,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
         mMap.getUiSettings().setMapToolbarEnabled(true);
         mMap.getUiSettings().setZoomControlsEnabled(true);
         mMap.getUiSettings().setCompassEnabled(true);
-        mMap.addMarker(new MarkerOptions().position(DUBLIN).title("Marker in Dublin"));
+//        mMap.addMarker(new MarkerOptions().position(DUBLIN).title("Marker in Dublin"));
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(DUBLIN, DEFAULT_ZOOM));
 
 //        mMap.setOnMyLocationClickListener((GoogleMap.OnMyLocationClickListener) getContext());
@@ -249,6 +201,19 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
 //        } catch (SecurityException e) {
 //            Log.e(TAG, "getDeviceLacation: SecurityException: " + e.getMessage());
 //        }
+
+        mList.add(new LatLng(53.35070589999999, -6.2605315));
+        mList.add(new LatLng(53.3503754, -6.260378800000001));
+        mList.add(new LatLng(53.35053749999999, -6.2593267));
+        mList.add(new LatLng(53.352143, -6.2600234));
+        mList.add(new LatLng(53.3527318, -6.257536399999999));
+        mList.add(new LatLng(53.3530294, -6.2560465));
+        mList.add(new LatLng(53.3589865, -6.261892599999999));
+        mList.add(new LatLng(53.3950778, -6.2406381));
+        mList.add(new LatLng(53.4066723, -6.2297261));
+        mList.add(new LatLng(53.4245086, -6.2190742));
+        mList.add(new LatLng(53.4280665, -6.2272759));
+        mList.add(new LatLng(53.42794929999999, -6.2290918));
 
     }
 
@@ -277,12 +242,26 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
                         || actionId == KeyEvent.ACTION_DOWN
                         || actionId == KeyEvent.KEYCODE_ENTER) {
                     //search method
-                    searchLocation(mStartText);
+//                    searchLocation(mStartText);
                 }
                 return false;
             }
         });
 
+        mDesText.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                String des = mDesText.getText().toString();
+                Log.d(TAG, "onItemClick: "+ des);
+                LatLng mDesResult = searchLocation(des);
+                String mDesLat = Double.toString(mDesResult.latitude);
+                String mDesLng = Double.toString(mDesResult.longitude);
+                mSearchData.put("mDesLat", mDesLat);
+                mSearchData.put("mDesLng", mDesLng);
+                Log.d(TAG, "desLat: "+mDesLat);
+                Log.d(TAG, "desLng: "+mDesLng);
+            }
+        });
         mDesText.setAdapter(mPlaceAutocompleteAdapter);
         mDesText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
@@ -292,21 +271,31 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
                         || actionId == KeyEvent.ACTION_DOWN
                         || actionId == KeyEvent.KEYCODE_ENTER) {
                     //search method
-                    searchLocation(mDesText);
+//                    searchLocation(mDesText);
+//                    drawPolyLineOnMap(mList);
                 }
                 return false;
             }
         });
         getDeviceLocation();
+
     }
+
+    private AdapterView.OnItemClickListener mAutocompleteClickListener = new AdapterView.OnItemClickListener() {
+        @Override
+        public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+            hideKeyboard();
+
+
+        }
+    };
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
 
     }
 
-    public void searchLocation(AutoCompleteTextView searchView) {
-        String searchTerm = searchView.getText().toString();
+    public LatLng searchLocation(String searchTerm) {
         hideKeyboard();
         Geocoder geocoder = new Geocoder(getContext());
         List<Address> returnList = new ArrayList<>();
@@ -319,11 +308,13 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
         if (!returnList.isEmpty()) {
             Address mAddress = returnList.get(0);
             LatLng mLoc = new LatLng(mAddress.getLatitude(), mAddress.getLongitude());
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(mLoc, DEFAULT_ZOOM));
-            MarkerOptions options = new MarkerOptions().position(mLoc).title(mAddress.getAddressLine(0));
-            mMap.addMarker(options);
+//            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(mLoc, DEFAULT_ZOOM));
+//            MarkerOptions options = new MarkerOptions().position(mLoc).title(mAddress.getAddressLine(0));
+//            mMap.addMarker(options);
+            return mLoc;
 
         }
+        return null;
     }
 
     private void hideKeyboard() {
@@ -357,5 +348,51 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
                         }
                     }
                 });
+    }
+
+    private void postData(final LatLng p) {
+        Log.d(TAG, "post once");
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Map<String, String> params = new HashMap<String, String>();
+                JSONObject post_result = null;
+                String lat = Double.toString(p.latitude);
+                String lng = Double.toString(p.longitude);
+                params.put("lat", lat);
+                params.put("lng", lng);
+                try {
+                    post_result = ConnectUtils.submitPostData(params, "utf-8");
+                    Log.i("POST_RESULT", post_result.getString("a"));
+                } catch (MalformedURLException e) {
+                    e.printStackTrace();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+    }
+
+    // Draw polyline on map
+    public void drawPolyLineOnMap(List<LatLng> list) {
+        PolylineOptions polyOptions = new PolylineOptions();
+        polyOptions.color(Color.RED);
+        polyOptions.width(12);
+        polyOptions.addAll(list);
+
+        //mMap.clear();
+        mMap.addPolyline(polyOptions);
+
+        LatLngBounds.Builder builder = new LatLngBounds.Builder();
+        for (LatLng latLng : list) {
+            builder.include(latLng);
+        }
+
+        final LatLngBounds bounds = builder.build();
+
+        //BOUND_PADDING is an int to specify padding of bound.. try 100.
+
+        CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, mMapView.getWidth(), mMapView.getHeight(),100);
+        mMap.animateCamera(cu);
     }
 }

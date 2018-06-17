@@ -50,7 +50,6 @@ public class EventFragment extends Fragment implements OnMapReadyCallback, Googl
     private static final LatLng BORD = new LatLng(53.344201, -6.240274);
     private List<EventItem> eventList = new ArrayList<>();
     private static final float DEFAULT_ZOOM = 12f;
-    private List<LatLng> mList = new ArrayList<>();
 
     @Nullable
     @Override
@@ -87,44 +86,9 @@ public class EventFragment extends Fragment implements OnMapReadyCallback, Googl
 
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(DUBLIN, DEFAULT_ZOOM));
 
-        mList.add(new LatLng(53.35070589999999, -6.2605315));
-        mList.add(new LatLng(53.3503754, -6.260378800000001));
-        mList.add(new LatLng(53.35053749999999, -6.2593267));
-        mList.add(new LatLng(53.352143, -6.2600234));
-        mList.add(new LatLng(53.3527318, -6.257536399999999));
-        mList.add(new LatLng(53.3530294, -6.2560465));
-        mList.add(new LatLng(53.3589865, -6.261892599999999));
-        mList.add(new LatLng(53.3950778, -6.2406381));
-        mList.add(new LatLng(53.4066723, -6.2297261));
-        mList.add(new LatLng(53.4245086, -6.2190742));
-        mList.add(new LatLng(53.4280665, -6.2272759));
-        mList.add(new LatLng(53.42794929999999, -6.2290918));
-
-        drawPolyLineOnMap(mList);
 
     }
 
-    // Draw polyline on map
-    public void drawPolyLineOnMap(List<LatLng> list) {
-        PolylineOptions polyOptions = new PolylineOptions();
-        polyOptions.color(Color.RED);
-        polyOptions.width(10);
-        polyOptions.addAll(list);
-
-        //mMap.clear();
-        mMap.addPolyline(polyOptions);
-
-        LatLngBounds.Builder builder = new LatLngBounds.Builder();
-        for (LatLng latLng : list) {
-            builder.include(latLng);
-        }
-
-        final LatLngBounds bounds = builder.build();
-
-        //BOUND_PADDING is an int to specify padding of bound.. try 100.
-        CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, 100);
-        mMap.animateCamera(cu);
-    }
 
     private void addEventOnMap(List<EventItem> list) {
         for (EventItem item : list) {

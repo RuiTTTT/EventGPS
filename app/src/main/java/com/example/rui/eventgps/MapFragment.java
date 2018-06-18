@@ -1,7 +1,6 @@
 package com.example.rui.eventgps;
 
 import android.Manifest;
-import android.app.Dialog;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
@@ -13,8 +12,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -31,22 +28,17 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.util.HttpUtils;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.places.AutocompletePrediction;
 import com.google.android.gms.location.places.Places;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
-import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
 
@@ -72,11 +64,11 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
     private AutoCompleteTextView mDesText;
     private Button clearStart;
     private Button clearDes;
-    private Button go;
+    private Button navButton;
     private GoogleApiClient mGoogleApiClient;
     private PlaceAutocompleteAdapter mPlaceAutocompleteAdapter;
     private FusedLocationProviderClient mFusedLocationProviderClient;
-    private static final String TAG = "MapActivity";
+    private static final String TAG = "MapFragment";
     private static final float DEFAULT_ZOOM = 10f;
     private static final LatLng DUBLIN = new LatLng(53.35, -6.26);
     private static final LatLngBounds LAT_LNG_BOUNDS = new LatLngBounds(new LatLng(-40, -168), new LatLng(71, 136));
@@ -98,7 +90,12 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
         clearDes = (Button) myView.findViewById(R.id.clearDes);
         clearStart.setVisibility(View.INVISIBLE);
         clearDes.setVisibility(View.INVISIBLE);
-        go = (Button) myView.findViewById(R.id.go);
+        navButton = (Button) myView.findViewById(R.id.go);
+
+        mSearchData.put("mStartLat", "");
+        mSearchData.put("mStartLng", "");
+        mSearchData.put("mDesLat", "");
+        mSearchData.put("mDesLng", "");
 
         mStartText.setSingleLine();
         mDesText.setSingleLine();
@@ -232,7 +229,21 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
 
         mPlaceAutocompleteAdapter = new PlaceAutocompleteAdapter(getContext(), mGoogleApiClient, LAT_LNG_BOUNDS, null);
 
-
+        mStartText.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                hideKeyboard();
+                String sta = mStartText.getText().toString();
+                Log.d(TAG, "onItemClick: "+ sta);
+                LatLng mStartResult = searchLocation(sta);
+                String mStartLat = Double.toString(mStartResult.latitude);
+                String mStartLng = Double.toString(mStartResult.longitude);
+                mSearchData.put("mStartLat", mStartLat);
+                mSearchData.put("mStartLng", mStartLng);
+                Log.d(TAG, "startLat: "+mStartLat);
+                Log.d(TAG, "startLng: "+mStartLng);
+            }
+        });
         mStartText.setAdapter(mPlaceAutocompleteAdapter);
         mStartText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
@@ -251,6 +262,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
         mDesText.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                hideKeyboard();
                 String des = mDesText.getText().toString();
                 Log.d(TAG, "onItemClick: "+ des);
                 LatLng mDesResult = searchLocation(des);
@@ -279,16 +291,14 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
         });
         getDeviceLocation();
 
+        navButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(mSearchData.get("mStartLat") != "" && mSearchData.get("mStartLng") != "" && mSearchData.get("mDesLat") != "" && mSearchData.get("mDesLng") != "")
+                postData();
+            }
+        });
     }
-
-    private AdapterView.OnItemClickListener mAutocompleteClickListener = new AdapterView.OnItemClickListener() {
-        @Override
-        public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-            hideKeyboard();
-
-
-        }
-    };
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
@@ -350,19 +360,14 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
                 });
     }
 
-    private void postData(final LatLng p) {
+    private void postData() {
         Log.d(TAG, "post once");
         new Thread(new Runnable() {
             @Override
             public void run() {
-                Map<String, String> params = new HashMap<String, String>();
                 JSONObject post_result = null;
-                String lat = Double.toString(p.latitude);
-                String lng = Double.toString(p.longitude);
-                params.put("lat", lat);
-                params.put("lng", lng);
                 try {
-                    post_result = ConnectUtils.submitPostData(params, "utf-8");
+                    post_result = ConnectUtils.submitPostData(mSearchData, "utf-8");
                     Log.i("POST_RESULT", post_result.getString("a"));
                 } catch (MalformedURLException e) {
                     e.printStackTrace();

@@ -6,6 +6,8 @@ import android.graphics.drawable.ColorDrawable;
 import android.nfc.Tag;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.Gravity;
@@ -29,8 +31,13 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
+import java.util.TimeZone;
 
 import static android.content.ContentValues.TAG;
 
@@ -61,6 +68,21 @@ public class EventFragment extends Fragment implements OnMapReadyCallback, Googl
         mMapView.onResume();
         mMapView.getMapAsync(this);
 
+        FloatingActionButton fab = myView.findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Snackbar.make(view, "Show recent events", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
+                String date = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
+                DateFormat df = DateFormat.getTimeInstance();
+                df.setTimeZone(TimeZone.getTimeZone("GMT+01:00"));
+
+                String mTime = df.format(new Date(System.currentTimeMillis()));
+                Log.d(TAG, "onCreateView: "+date+ ' ' +mTime);
+            }
+        });
+
         return myView;
     }
 
@@ -72,11 +94,11 @@ public class EventFragment extends Fragment implements OnMapReadyCallback, Googl
         mMap.getUiSettings().setZoomControlsEnabled(true);
         mMap.getUiSettings().setCompassEnabled(true);
 
-        eventList.add(new EventItem("3 Arena", "Demi Lovate", "18:30", ARENA3));
-        eventList.add(new EventItem("Aviva Stadium", "Guinness PRO14", "18:00", AVIVA));
-        eventList.add(new EventItem("Ambassador Theatre", "Dinosaurs Around the World", "10:00", AMVASSADOR));
-        eventList.add(new EventItem("RDS", "Dublin Horse Show", "9:00", RDS));
-        eventList.add(new EventItem("Bord Gais Energy Theatre", "Wicked 2018", "19:30", BORD));
+//        eventList.add(new EventItem("3 Arena", "Demi Lovate", "18:30", ARENA3));
+//        eventList.add(new EventItem("Aviva Stadium", "Guinness PRO14", "18:00", AVIVA));
+//        eventList.add(new EventItem("Ambassador Theatre", "Dinosaurs Around the World", "10:00", AMVASSADOR));
+//        eventList.add(new EventItem("RDS", "Dublin Horse Show", "9:00", RDS));
+//        eventList.add(new EventItem("Bord Gais Energy Theatre", "Wicked 2018", "19:30", BORD));
         addEventOnMap(eventList);
 
         CustomInfoWindowAdapter customInfoWindow = new CustomInfoWindowAdapter(getContext());

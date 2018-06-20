@@ -1,6 +1,5 @@
 package com.example.rui.eventgps;
 
-import android.app.Activity;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -34,11 +33,13 @@ public class CustomInfoWindowAdapter implements GoogleMap.InfoWindowAdapter{
         TextView mTitle = view.findViewById(R.id.venue);
         TextView mEvent = view.findViewById(R.id.event);
         TextView mStart = view.findViewById(R.id.startTime);
+        TextView mEnd = view.findViewById(R.id.endTime);
 
         mTitle.setText(marker.getTitle());
         EventItem eventItem = (EventItem) marker.getTag();
         mEvent.setText("Event: " + eventItem.getTitle());
-        mStart.setText("Start Time: " + eventItem.getTime());
+        mStart.setText("Start Time: " + eventItem.getStartTime());
+        mEnd.setText("End Time: " + eventItem.getEndTIme());
         return view;
     }
 }

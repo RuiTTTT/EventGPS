@@ -10,6 +10,7 @@ import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
@@ -39,6 +40,8 @@ import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
 
@@ -69,13 +72,15 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
     private GoogleApiClient mGoogleApiClient;
     private PlaceAutocompleteAdapter mPlaceAutocompleteAdapter;
     private FusedLocationProviderClient mFusedLocationProviderClient;
+    private String currentDate;
+    private String currentTime;
     private static final String TAG = "MapFragment";
     private static final float DEFAULT_ZOOM = 10f;
     private static final LatLng DUBLIN = new LatLng(53.35, -6.26);
     private static final LatLngBounds LAT_LNG_BOUNDS = new LatLngBounds(new LatLng(-40, -168), new LatLng(71, 136));
-    private List<LatLng> mList = new ArrayList<>();
     private Map<String,String> mSearchData = new HashMap<>();
-    private List<LatLng> post_result = new ArrayList<>();
+    private List<LatLng> routeResult = new ArrayList<>();
+    private List<EventItem> eventResult = new ArrayList<>();
 
     @Nullable
     @Override
@@ -94,12 +99,11 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
         clearDes.setVisibility(View.INVISIBLE);
         navButton = (Button) myView.findViewById(R.id.go);
 
-        String date = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
+        currentDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
         DateFormat df = DateFormat.getTimeInstance();
         df.setTimeZone(TimeZone.getTimeZone("GMT+01:00"));
-
-        df.format(new Date(System.currentTimeMillis()));
-        Log.d(TAG, "onCreateView: "+date+ ' ' +df.format(new Date(System.currentTimeMillis())));
+        currentTime = df.format(new Date(System.currentTimeMillis()));
+        Log.d(TAG, "onCreateView: " + currentDate + ' ' + currentTime);
 
         mSearchData.put("mStartLat", "");
         mSearchData.put("mStartLng", "");
@@ -208,18 +212,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
 //            Log.e(TAG, "getDeviceLacation: SecurityException: " + e.getMessage());
 //        }
 
-        mList.add(new LatLng(53.35070589999999, -6.2605315));
-        mList.add(new LatLng(53.3503754, -6.260378800000001));
-        mList.add(new LatLng(53.35053749999999, -6.2593267));
-        mList.add(new LatLng(53.352143, -6.2600234));
-        mList.add(new LatLng(53.3527318, -6.257536399999999));
-        mList.add(new LatLng(53.3530294, -6.2560465));
-        mList.add(new LatLng(53.3589865, -6.261892599999999));
-        mList.add(new LatLng(53.3950778, -6.2406381));
-        mList.add(new LatLng(53.4066723, -6.2297261));
-        mList.add(new LatLng(53.4245086, -6.2190742));
-        mList.add(new LatLng(53.4280665, -6.2272759));
-        mList.add(new LatLng(53.42794929999999, -6.2290918));
+        CustomInfoWindowAdapter customInfoWindow = new CustomInfoWindowAdapter(getContext());
+        mMap.setInfoWindowAdapter(customInfoWindow);
+
 
     }
 
@@ -227,6 +222,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
     public void onMyLocationClick(@NonNull Location location) {
 
     }
+
 
     private void initSearch() {
         mGoogleApiClient = new GoogleApiClient
@@ -378,13 +374,25 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
-                post_result = RouteConnectUtil.sendRouteRequest(mSearchData);
-                Log.i(TAG, "run: "+ post_result.size());
+                routeResult = RouteConnectUtils.sendRouteRequest(mSearchData);
+                Log.i(TAG, "run: "+ routeResult.size());
+                eventResult = EventConnectUtils.sendEventRequest(currentDate, currentTime);
+//                Log.i(TAG, "run: "+ eventResult.size());
             }
         });
         thread.start();
         thread.join();
-        drawPolyLineOnMap(post_result);
+        drawPolyLineOnMap(routeResult);
+        if(!eventResult.isEmpty()) {
+            addEventOnMap(eventResult);
+//            Log.d(TAG, "Add event on map: "+eventResult.size());
+            Snackbar.make(myView, eventResult.size() + "Event along the route", Snackbar.LENGTH_LONG)
+                    .setAction("Action", null).show();
+        } else {
+            Snackbar.make(myView, "Currently no event", Snackbar.LENGTH_LONG)
+                    .setAction("Action", null).show();
+        }
+
     }
 
     // Draw polyline on map
@@ -408,5 +416,13 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
 
         CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, mMapView.getWidth(), mMapView.getHeight(),100);
         mMap.animateCamera(cu);
+    }
+
+    private void addEventOnMap(List<EventItem> list) {
+        for (EventItem item : list) {
+            Marker m = mMap.addMarker(new MarkerOptions().position(item.getLatLng()).title(item.getVenue()));
+            m.setTag(item);
+        }
+
     }
 }

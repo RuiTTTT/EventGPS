@@ -9,13 +9,15 @@ import com.google.android.gms.maps.model.LatLng;
 public class EventItem {
     private String venue;
     private String title;
-    private String time;
+    private String startTime;
+    private String endTIme;
     private LatLng latLng;
 
-    public EventItem(String venue, String title, String time, LatLng latLng) {
+    public EventItem(String venue, String title, String startTime, String endTime, LatLng latLng) {
         this.venue = venue;
         this.title = title;
-        this.time = time;
+        this.startTime = startTime;
+        this.endTIme = endTime;
         this.latLng = latLng;
     }
 
@@ -31,11 +33,13 @@ public class EventItem {
         return title;
     }
 
-    public String getTime() {
-        return time;
+    public String getStartTime() {
+        return startTime;
     }
 
+    public String getEndTIme() { return endTIme; }
+
     public String getInfo() {
-        return ("Event: " + title + " Start Time: " + time);
+        return ("Event: " + title + " Start Time: " + startTime + " End Time" + endTIme);
     }
 }

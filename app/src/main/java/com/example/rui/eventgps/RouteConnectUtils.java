@@ -22,18 +22,18 @@ import java.util.Map;
  * Created by ray on 2018/6/19.
  */
 
-public class RouteConnectUtil {
-    private static final String TAG = "conn";
+public class RouteConnectUtils {
+    private static final String TAG = "RouteConnect";
     static HttpURLConnection urlConnection;
 
     public static List<LatLng> sendRouteRequest(Map<String, String> searchTerm) {
         List<LatLng> mRoutePoints = new ArrayList<>();
-        StringBuilder result = new StringBuilder();
+        StringBuilder responseResult = new StringBuilder();
         String mSearchStart = searchTerm.get("mStartLat")+ ',' + searchTerm.get("mStartLng");
         String mSearchDes = searchTerm.get("mDesLat") + "," + searchTerm.get("mDesLng");
 
         try {
-            URL url = new URL("http://csstudent02.ucd.ie:443/EventGPS-api/googlemaps-api/route/"+mSearchStart+"/"+mSearchDes);
+            URL url = new URL("http://csstudent02.ucd.ie:443/EventGPS-api/googlemaps-api/route/" + mSearchStart + "/" + mSearchDes);
             urlConnection = (HttpURLConnection) url.openConnection();
             InputStream in = new BufferedInputStream(urlConnection.getInputStream());
 
@@ -41,7 +41,7 @@ public class RouteConnectUtil {
 
             String line;
             while ((line = reader.readLine()) != null) {
-                result.append(line);
+                responseResult.append(line);
             }
 
         }catch( Exception e) {
@@ -52,7 +52,7 @@ public class RouteConnectUtil {
         }
 
         try {
-            JSONObject jsonData = new JSONObject(result.toString());
+            JSONObject jsonData = new JSONObject(responseResult.toString());
             int len = jsonData.length();
             Log.d(TAG, "length: "+len);
             for (int i = 0; i < len; i++) {

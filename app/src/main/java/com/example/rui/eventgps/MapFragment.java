@@ -42,15 +42,16 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.io.IOException;
-import java.net.MalformedURLException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.TimeZone;
 
 /**
  * Created by ray on 2018/6/9.
@@ -74,6 +75,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
     private static final LatLngBounds LAT_LNG_BOUNDS = new LatLngBounds(new LatLng(-40, -168), new LatLng(71, 136));
     private List<LatLng> mList = new ArrayList<>();
     private Map<String,String> mSearchData = new HashMap<>();
+    private List<LatLng> post_result = new ArrayList<>();
 
     @Nullable
     @Override
@@ -91,6 +93,13 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
         clearStart.setVisibility(View.INVISIBLE);
         clearDes.setVisibility(View.INVISIBLE);
         navButton = (Button) myView.findViewById(R.id.go);
+
+        String date = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
+        DateFormat df = DateFormat.getTimeInstance();
+        df.setTimeZone(TimeZone.getTimeZone("GMT+01:00"));
+
+        df.format(new Date(System.currentTimeMillis()));
+        Log.d(TAG, "onCreateView: "+date+ ' ' +df.format(new Date(System.currentTimeMillis())));
 
         mSearchData.put("mStartLat", "");
         mSearchData.put("mStartLng", "");
@@ -295,7 +304,11 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
             @Override
             public void onClick(View v) {
                 if(mSearchData.get("mStartLat") != "" && mSearchData.get("mStartLng") != "" && mSearchData.get("mDesLat") != "" && mSearchData.get("mDesLng") != "")
-                postData();
+                    try {
+                        postData();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
             }
         });
     }
@@ -360,22 +373,18 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
                 });
     }
 
-    private void postData() {
+    private void postData() throws InterruptedException {
         Log.d(TAG, "post once");
-        new Thread(new Runnable() {
+        Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
-                JSONObject post_result = null;
-                try {
-                    post_result = ConnectUtils.submitPostData(mSearchData, "utf-8");
-                    Log.i("POST_RESULT", post_result.getString("a"));
-                } catch (MalformedURLException e) {
-                    e.printStackTrace();
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+                post_result = RouteConnectUtil.sendRouteRequest(mSearchData);
+                Log.i(TAG, "run: "+ post_result.size());
             }
-        }).start();
+        });
+        thread.start();
+        thread.join();
+        drawPolyLineOnMap(post_result);
     }
 
     // Draw polyline on map

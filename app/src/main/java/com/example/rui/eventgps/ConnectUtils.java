@@ -26,24 +26,26 @@ public class ConnectUtils {
     public static JSONObject submitPostData(Map<String, String> params, String encode) throws MalformedURLException {
 
         byte[] data = getRequestData(params, encode).toString().getBytes();
-        URL url = new URL("http://192.168.0.79:5000/");
+        String mSearchStart = params.get("mStartLat")+ ',' + params.get("mStartLng");
+        String mSearchDes = params.get("mDesLat") + "," + params.get("mDesLng");
+        URL url = new URL("http://csstudent02.ucd.ie:998/EventGPS-api/googlemaps-api/route/"+mSearchStart+"/"+mSearchDes);
         HttpURLConnection httpURLConnection = null;
         try{
             httpURLConnection = (HttpURLConnection)url.openConnection();
             httpURLConnection.setConnectTimeout(3000);
             httpURLConnection.setDoInput(true);
             httpURLConnection.setDoOutput(true);
-            httpURLConnection.setRequestMethod("POST");
+            httpURLConnection.setRequestMethod("GET");
             httpURLConnection.setUseCaches(false);
 
             httpURLConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
 
             httpURLConnection.setRequestProperty("Content-Length", String.valueOf(data.length));
 
-            OutputStream outputStream = new BufferedOutputStream(httpURLConnection.getOutputStream());
-            outputStream.write(data);
-            Log.d("connect", "post once");
-            outputStream.flush();
+//            OutputStream outputStream = new BufferedOutputStream(httpURLConnection.getOutputStream());
+//            outputStream.write(data);
+//            Log.d("connect", "post once");
+//            outputStream.flush();
 
             int response = httpURLConnection.getResponseCode();
             if (response == HttpURLConnection.HTTP_OK) {
@@ -56,6 +58,31 @@ public class ConnectUtils {
             httpURLConnection.disconnect();
         }
 
+        return null;
+    }
+
+    public static JSONObject sendRouteRequest(URL url) throws MalformedURLException {
+        HttpURLConnection urlConnection = null;
+        try {
+            urlConnection = (HttpURLConnection) url.openConnection();
+
+            InputStream inputStream = urlConnection.getInputStream();
+
+            InputStreamReader isw = new InputStreamReader(inputStream);
+
+            int data = isw.read();
+            while (data != -1) {
+                char current = (char) data;
+                data = isw.read();
+                System.out.print(current);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (urlConnection != null) {
+                urlConnection.disconnect();
+            }
+        }
         return null;
     }
 

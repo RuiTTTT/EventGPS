@@ -382,6 +382,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
         });
         thread.start();
         thread.join();
+        mMap.clear();
         drawPolyLineOnMap(routeResult);
         if(!eventResult.isEmpty()) {
             addEventOnMap(eventResult);

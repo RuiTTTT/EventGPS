@@ -387,7 +387,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
         if(!eventResult.isEmpty()) {
             addEventOnMap(eventResult);
 //            Log.d(TAG, "Add event on map: "+eventResult.size());
-            Snackbar.make(myView, eventResult.size() + "Event along the route", Snackbar.LENGTH_LONG)
+            Snackbar.make(myView, eventResult.size() + " Event is found along the route", Snackbar.LENGTH_LONG)
                     .setAction("Action", null).show();
         } else {
             Snackbar.make(myView, "Currently no event", Snackbar.LENGTH_LONG)

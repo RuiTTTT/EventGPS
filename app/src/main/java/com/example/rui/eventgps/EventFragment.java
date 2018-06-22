@@ -50,11 +50,7 @@ public class EventFragment extends Fragment implements OnMapReadyCallback, Googl
     private MapView mMapView;
     private GoogleMap mMap;
     private static final LatLng DUBLIN = new LatLng(53.35, -6.26);
-    private static final LatLng ARENA3 = new LatLng(53.347512, -6.228482);
-    private static final LatLng AVIVA = new LatLng(53.335237, -6.228468);
-    private static final LatLng AMVASSADOR = new LatLng(53.352809, -6.261987);
-    private static final LatLng RDS = new LatLng(53.3257, -6.2297);
-    private static final LatLng BORD = new LatLng(53.344201, -6.240274);
+    private String currentDate;
     private List<EventItem> eventList = new ArrayList<>();
     private static final float DEFAULT_ZOOM = 12f;
 
@@ -72,14 +68,15 @@ public class EventFragment extends Fragment implements OnMapReadyCallback, Googl
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Show recent events", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-                String date = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
-                DateFormat df = DateFormat.getTimeInstance();
-                df.setTimeZone(TimeZone.getTimeZone("GMT+01:00"));
-
-                String mTime = df.format(new Date(System.currentTimeMillis()));
-                Log.d(TAG, "onCreateView: "+date+ ' ' +mTime);
+//                Snackbar.make(view, "Show recent events", Snackbar.LENGTH_LONG)
+//                        .setAction("Action", null).show();
+                currentDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
+                Log.d(TAG, "onCreateView: "+currentDate);
+                try {
+                    postData();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
         });
 
@@ -88,18 +85,12 @@ public class EventFragment extends Fragment implements OnMapReadyCallback, Googl
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        Toast.makeText(getContext(), "Load Map", Toast.LENGTH_SHORT).show();
+//        Toast.makeText(getContext(), "Load Map", Toast.LENGTH_SHORT).show();
         mMap = googleMap;
         mMap.getUiSettings().setMapToolbarEnabled(true);
         mMap.getUiSettings().setZoomControlsEnabled(true);
         mMap.getUiSettings().setCompassEnabled(true);
 
-//        eventList.add(new EventItem("3 Arena", "Demi Lovate", "18:30", ARENA3));
-//        eventList.add(new EventItem("Aviva Stadium", "Guinness PRO14", "18:00", AVIVA));
-//        eventList.add(new EventItem("Ambassador Theatre", "Dinosaurs Around the World", "10:00", AMVASSADOR));
-//        eventList.add(new EventItem("RDS", "Dublin Horse Show", "9:00", RDS));
-//        eventList.add(new EventItem("Bord Gais Energy Theatre", "Wicked 2018", "19:30", BORD));
-        addEventOnMap(eventList);
 
         CustomInfoWindowAdapter customInfoWindow = new CustomInfoWindowAdapter(getContext());
         mMap.setInfoWindowAdapter(customInfoWindow);
@@ -125,6 +116,29 @@ public class EventFragment extends Fragment implements OnMapReadyCallback, Googl
         Toast.makeText(getContext(), "click info window", Toast.LENGTH_SHORT).show();
         View v = getView();
         //showPopup(v);
+    }
+
+    private void postData() throws InterruptedException {
+        Log.d(TAG, "post once");
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                eventList = EventConnectUtils.sendDailyEventRequest(currentDate);
+            }
+        });
+        thread.start();
+        thread.join();
+        mMap.clear();
+        if(!eventList.isEmpty()) {
+            addEventOnMap(eventList);
+//            Log.d(TAG, "Add event on map: "+eventResult.size());
+            Snackbar.make(myView, eventList.size() + " Event is found today", Snackbar.LENGTH_LONG)
+                    .setAction("Action", null).show();
+        } else {
+            Snackbar.make(myView, "Currently no event", Snackbar.LENGTH_LONG)
+                    .setAction("Action", null).show();
+        }
+
     }
 
     public void showPopup(View anchorView) {

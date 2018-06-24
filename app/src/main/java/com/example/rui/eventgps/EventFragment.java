@@ -132,10 +132,10 @@ public class EventFragment extends Fragment implements OnMapReadyCallback, Googl
         if(!eventList.isEmpty()) {
             addEventOnMap(eventList);
 //            Log.d(TAG, "Add event on map: "+eventResult.size());
-            Snackbar.make(myView, eventList.size() + " Event is found today", Snackbar.LENGTH_LONG)
+            Snackbar.make(myView, eventList.size() + " Event found today", 5000)
                     .setAction("Action", null).show();
         } else {
-            Snackbar.make(myView, "Currently no event", Snackbar.LENGTH_LONG)
+            Snackbar.make(myView, "Currently no event", 5000)
                     .setAction("Action", null).show();
         }
 

@@ -201,7 +201,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
         mMap.getUiSettings().setZoomControlsEnabled(true);
         mMap.getUiSettings().setCompassEnabled(true);
 //        mMap.addMarker(new MarkerOptions().position(DUBLIN).title("Marker in Dublin"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(DUBLIN, DEFAULT_ZOOM));
+//        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(DUBLIN, DEFAULT_ZOOM));
 
 //        mMap.setOnMyLocationClickListener((GoogleMap.OnMyLocationClickListener) getContext());
 //        try {
@@ -215,6 +215,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
         CustomInfoWindowAdapter customInfoWindow = new CustomInfoWindowAdapter(getContext());
         mMap.setInfoWindowAdapter(customInfoWindow);
 
+        getDeviceLocation();
 
     }
 
@@ -294,7 +295,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
                 return false;
             }
         });
-        getDeviceLocation();
+//        getDeviceLocation();
 
         navButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -364,6 +365,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
                         // Got last known location. In some rare situations this can be null.
                         if (location != null) {
                             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(),location.getLongitude()), 15f));
+                            mSearchData.put("mStartLat", Double.toString(location.getLatitude()));
+                            mSearchData.put("mStartLng", Double.toString(location.getLongitude()));
                         }
                     }
                 });
@@ -387,10 +390,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
         if(!eventResult.isEmpty()) {
             addEventOnMap(eventResult);
 //            Log.d(TAG, "Add event on map: "+eventResult.size());
-            Snackbar.make(myView, eventResult.size() + " Event is found along the route", Snackbar.LENGTH_LONG)
+            Snackbar.make(myView, eventResult.size() + " Event found along the route", 5000)
                     .setAction("Action", null).show();
         } else {
-            Snackbar.make(myView, "Currently no event", Snackbar.LENGTH_LONG)
+            Snackbar.make(myView, "Currently no event", 5000)
                     .setAction("Action", null).show();
         }
 

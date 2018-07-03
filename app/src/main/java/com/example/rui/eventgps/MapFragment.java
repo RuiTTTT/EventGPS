@@ -390,7 +390,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
         if(!eventResult.isEmpty()) {
             addEventOnMap(eventResult);
 //            Log.d(TAG, "Add event on map: "+eventResult.size());
-            Snackbar.make(myView, eventResult.size() + " Event found along the route", 5000)
+            Snackbar.make(myView, eventResult.size() + " Event(s) found along the route", 5000)
                     .setAction("Action", null).show();
         } else {
             Snackbar.make(myView, "Currently no event", 5000)
@@ -418,7 +418,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
 
         //BOUND_PADDING is an int to specify padding of bound.. try 100.
 
-        CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, mMapView.getWidth(), mMapView.getHeight(),100);
+        CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, mMapView.getWidth(), mMapView.getHeight(),120);
         mMap.animateCamera(cu);
     }
 

@@ -11,13 +11,15 @@ public class EventItem {
     private String title;
     private String startTime;
     private String endTIme;
+    private Double radius;
     private LatLng latLng;
 
-    public EventItem(String venue, String title, String startTime, String endTime, LatLng latLng) {
+    public EventItem(String venue, String title, String startTime, String endTime, Double radius, LatLng latLng) {
         this.venue = venue;
         this.title = title;
         this.startTime = startTime;
         this.endTIme = endTime;
+        this.radius = radius;
         this.latLng = latLng;
     }
 
@@ -38,6 +40,8 @@ public class EventItem {
     }
 
     public String getEndTIme() { return endTIme; }
+
+    public Double getRadius() { return radius; }
 
     public String getInfo() {
         return ("Event: " + title + " Start Time: " + startTime + " End Time" + endTIme);

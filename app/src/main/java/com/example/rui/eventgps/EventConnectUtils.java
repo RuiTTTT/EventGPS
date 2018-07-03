@@ -61,6 +61,7 @@ public class EventConnectUtils {
                                           eventData.getString("EventName"),
                                           eventData.getString("StartTime"),
                                           eventData.getString("EndTime"),
+                                          eventData.getDouble("Radius"),
                                           geoLocation));
                 Log.d(TAG, "sendEventRequest: ");
             }
@@ -107,6 +108,7 @@ public class EventConnectUtils {
                         eventData.getString("EventName"),
                         eventData.getString("StartTime"),
                         eventData.getString("EndTime"),
+                        eventData.getDouble("Radius"),
                         geoLocation));
                 Log.d(TAG, "sendEventRequest: ");
             }

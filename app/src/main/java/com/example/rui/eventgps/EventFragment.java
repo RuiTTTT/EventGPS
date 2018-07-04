@@ -1,9 +1,8 @@
 package com.example.rui.eventgps;
 
-import android.content.Context;
+import android.app.DatePickerDialog;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
-import android.nfc.Tag;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
@@ -14,13 +13,11 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
+import android.widget.DatePicker;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.common.util.CrashUtils;
-import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
@@ -28,18 +25,12 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.maps.model.PolylineOptions;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.Calendar;
 import java.util.List;
-import java.util.Locale;
-import java.util.TimeZone;
 
 import static android.content.ContentValues.TAG;
 
@@ -54,6 +45,8 @@ public class EventFragment extends Fragment implements OnMapReadyCallback, Googl
     private Circle mCircle;
     private static final LatLng DUBLIN = new LatLng(53.35, -6.26);
     private String currentDate;
+    private Calendar mCalendar;
+    private int year, month, day;
     private List<EventItem> eventList = new ArrayList<>();
     private static final float DEFAULT_ZOOM = 12f;
 
@@ -67,19 +60,34 @@ public class EventFragment extends Fragment implements OnMapReadyCallback, Googl
         mMapView.onResume();
         mMapView.getMapAsync(this);
 
+        mCalendar = Calendar.getInstance();
+        year = mCalendar.get(Calendar.YEAR);
+        month = mCalendar.get(Calendar.MONTH);
+        day = mCalendar.get(Calendar.DAY_OF_MONTH);
+
         FloatingActionButton fab = myView.findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//                Snackbar.make(view, "Show recent events", Snackbar.LENGTH_LONG)
-//                        .setAction("Action", null).show();
-                currentDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
-                Log.d(TAG, "onCreateView: "+currentDate);
-                try {
-                    postData();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+//                currentDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
+//                Log.d(TAG, "onCreateView: "+currentDate);
+//                try {
+//                    postData();
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+//                }
+                DatePickerDialog datePickerDialog = new DatePickerDialog(getActivity(), new DatePickerDialog.OnDateSetListener() {
+                    @Override
+                    public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+                        currentDate = Integer.toString(year) + '-' + Integer.toString(month+1) + '-' + Integer.toString(dayOfMonth);
+                        try {
+                            postData();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }, year, month, day);
+                datePickerDialog.show();
             }
         });
 

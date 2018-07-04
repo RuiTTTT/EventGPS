@@ -38,6 +38,8 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.Circle;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
@@ -66,6 +68,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
     private GoogleMap mMap;
     private AutoCompleteTextView mStartText;
     private AutoCompleteTextView mDesText;
+    private Circle mCircle;
     private Button clearStart;
     private Button clearDes;
     private Button navButton;
@@ -426,6 +429,13 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
         for (EventItem item : list) {
             Marker m = mMap.addMarker(new MarkerOptions().position(item.getLatLng()).title(item.getVenue()));
             m.setTag(item);
+            mCircle = mMap.addCircle(new CircleOptions()
+                    .center(item.getLatLng())
+                    .radius(item.getRadius() * 1000)
+                    .strokeWidth(0)
+                    .strokeColor(Color.GREEN)
+                    .fillColor(Color.argb(180, 155, 191, 244))
+                    .clickable(false));
         }
 
     }

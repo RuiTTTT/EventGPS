@@ -46,6 +46,9 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.maps.android.PolyUtil;
+
+import org.apache.commons.text.StringEscapeUtils;
 
 import java.io.IOException;
 import java.text.DateFormat;
@@ -82,8 +85,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
     private static final LatLng DUBLIN = new LatLng(53.35, -6.26);
     private static final LatLngBounds LAT_LNG_BOUNDS = new LatLngBounds(new LatLng(-40, -168), new LatLng(71, 136));
     private Map<String,String> mSearchData = new HashMap<>();
-    private List<LatLng> routeResult = new ArrayList<>();
+    private List<List> routeResult = new ArrayList<>();
     private List<EventItem> eventResult = new ArrayList<>();
+    private final static String LINE1 = "e{rdIfvee@_MdE}Ad@Bb@fArCd@x@R\\\\]r@U`@iArBuBbDuCdFQ\\\\Sr@k@~BmAqAg@g@i@g@}DaD_Ay@gAaA{AwAKAgAgAkBcCoAgBwAcBwDsDcE_EcB_B}@i@[W{BqBcCwBKMmCcCKKEUsAgAsCwBuA_A_CqAq@[k@Mi@IwBIo@?]GyAi@_@MSIO@a@Ia@QwAw@kDkB_CkA{Ay@]UGKoCcBc@WkBiAkAk@gDyAsAw@q@e@WSG?EAiCmBuAoAmA_B_AaB_@g@cAmA_BuA{@{@GOeBwAcJqHk@a@UCyBuAyBeA}Aq@}@e@kCwA{@]sBs@iAY_FeAgHaAmB[}HmA_XcEcBW}A_@aBe@sBiAqAw@}D}Cm@m@[e@uAiAeGyF{PqPoLgLqOcOyFuEeCmBuBwA{EaDyCaBcGqCeKqE}CuAyDcBoCqAkAm@y@[mLgFePgHiCiAmH_DULOAi@Wq@Ue@Iw@Ew@Ds@Rm@\\\\k@d@y@dAo@jA_@bA]lAYxASdBOxCMhEKfDOtD[pQBjAPdATz@Dl@Cl@g@bCId@IlAAhADnARnAZ`Ap@hALLxEvDr@j@XNVRNPr@rAR^XjAJl@J~ABv@?|@ErAQvBe@pD}BhLc@jBOlAYhBWjAGR{BlE}BfEKL";
 
     @Nullable
     @Override
@@ -203,6 +207,12 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
         mMap.getUiSettings().setMapToolbarEnabled(true);
         mMap.getUiSettings().setZoomControlsEnabled(true);
         mMap.getUiSettings().setCompassEnabled(true);
+
+        String LINE = StringEscapeUtils.unescapeJava(LINE1);
+        List<LatLng> decodedPath = PolyUtil.decode(LINE);
+        Log.d(TAG, "onCreateView: " + decodedPath.toString());
+        mMap.addPolyline(new PolylineOptions().addAll(decodedPath));
+//        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(-33.8256, 151.2395), 12));
 //        mMap.addMarker(new MarkerOptions().position(DUBLIN).title("Marker in Dublin"));
 //        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(DUBLIN, DEFAULT_ZOOM));
 
@@ -381,7 +391,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
             @Override
             public void run() {
                 routeResult = RouteConnectUtils.sendRouteRequest(mSearchData);
-                Log.i(TAG, "run: "+ routeResult.size());
+//                Log.i(TAG, "run: "+ routeResult.size());
                 eventResult = EventConnectUtils.sendEventRequest(currentDate, currentTime);
 //                Log.i(TAG, "run: "+ eventResult.size());
             }
@@ -389,7 +399,11 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
         thread.start();
         thread.join();
         mMap.clear();
-        drawPolyLineOnMap(routeResult);
+        for (List<LatLng> route : routeResult) {
+            Log.d(TAG, "postData: " + routeResult.toString());
+            drawPolyLineOnMap(route);
+        }
+
         if(!eventResult.isEmpty()) {
             addEventOnMap(eventResult);
 //            Log.d(TAG, "Add event on map: "+eventResult.size());
@@ -412,17 +426,20 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
         //mMap.clear();
         mMap.addPolyline(polyOptions);
 
-        LatLngBounds.Builder builder = new LatLngBounds.Builder();
-        for (LatLng latLng : list) {
-            builder.include(latLng);
+        if(! list.isEmpty()) {
+            LatLngBounds.Builder builder = new LatLngBounds.Builder();
+            for (LatLng latLng : list) {
+                builder.include(latLng);
+            }
+
+            final LatLngBounds bounds = builder.build();
+
+            //BOUND_PADDING is an int to specify padding of bound.. try 100.
+
+            CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, mMapView.getWidth(), mMapView.getHeight(),120);
+            mMap.animateCamera(cu);
         }
 
-        final LatLngBounds bounds = builder.build();
-
-        //BOUND_PADDING is an int to specify padding of bound.. try 100.
-
-        CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, mMapView.getWidth(), mMapView.getHeight(),120);
-        mMap.animateCamera(cu);
     }
 
     private void addEventOnMap(List<EventItem> list) {

@@ -5,6 +5,7 @@ import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -26,8 +27,9 @@ public class RouteConnectUtils {
     private static final String TAG = "RouteConnect";
     static HttpURLConnection urlConnection;
 
-    public static List<LatLng> sendRouteRequest(Map<String, String> searchTerm) {
-        List<LatLng> mRoutePoints = new ArrayList<>();
+    public static List<List> sendRouteRequest(Map<String, String> searchTerm) {
+//        List<LatLng> mRoutePoints = new ArrayList<>();
+        List<List> mRoutes = new ArrayList<>();
         StringBuilder responseResult = new StringBuilder();
         String mSearchStart = searchTerm.get("mStartLat")+ ',' + searchTerm.get("mStartLng");
         String mSearchDes = searchTerm.get("mDesLat") + "," + searchTerm.get("mDesLng");
@@ -55,12 +57,27 @@ public class RouteConnectUtils {
             JSONObject jsonData = new JSONObject(responseResult.toString());
             int len = jsonData.length();
             Log.d(TAG, "length: "+len);
-            for (int i = 0; i < len; i++) {
-                JSONObject geoData = (JSONObject) jsonData.get(Integer.toString(i));
-                mRoutePoints.add(new LatLng(geoData.getDouble("lat"), geoData.getDouble("lng")));
-                Log.d(TAG, "sendRouteRequest: "+Double.toString(geoData.getDouble("lat"))+Double.toString(geoData.getDouble("lng")));
+            for (int j = 0; j<len; j++) {
+                List<LatLng> mRoutePoints = new ArrayList<>();
+                JSONObject route = (JSONObject) jsonData.getJSONObject(Integer.toString(j));
+//                JSONArray route = jsonData.getJSONArray(Integer.toString(j));
+                Log.d(TAG, "Json" + route.toString());
+                int length = route.length();
+                for (int i = 0; i < length; i++) {
+                    JSONObject geoData = (JSONObject) route.getJSONObject(Integer.toString(i));
+//                    JSONObject geoData = route.getJSONObject(i);
+//                    Log.d(TAG, "Json" + geoData.toString());
+
+                    mRoutePoints.add(new LatLng(geoData.getDouble("lat"), geoData.getDouble("lng")));
+//                    Log.d(TAG, "sendRouteRequest: "+Double.toString(geoData.getDouble("lat"))+Double.toString(geoData.getDouble("lng")));
+                }
+
+                mRoutes.add(mRoutePoints);
+                Log.d(TAG, "sendRouteRequest: "+mRoutes.toString());
+//                mRoutePoints.clear();
             }
-            return mRoutePoints;
+            Log.d(TAG, "sendRouteRequest: "+mRoutes.toString());
+            return mRoutes;
         } catch (JSONException e) {
             e.printStackTrace();
         }

@@ -81,7 +81,7 @@ public class LaunchActivity extends AwesomeSplash{
             if (ContextCompat.checkSelfPermission(this.getApplicationContext(),
                     Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                 mLocationPermission = true;
-                startActivity(new Intent(LaunchActivity.this, MapEventActivity.class));
+                startActivity(new Intent(LaunchActivity.this, LoginActivity.class));
                 finishAfterTransition();//Make sure the launch screen only showed once.
             } else {
                 ActivityCompat.requestPermissions(this, locationPermission, LOC_PERMISSION_REQUEST_CODE);
@@ -106,7 +106,7 @@ public class LaunchActivity extends AwesomeSplash{
                         }
                     }
                     mLocationPermission = true;
-                    startActivity(new Intent(LaunchActivity.this, MapEventActivity.class));
+                    startActivity(new Intent(LaunchActivity.this, LoginActivity.class));
                     finishAfterTransition();//Make sure the launch screen only showed once.
                 }
             }

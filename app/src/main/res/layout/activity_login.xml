@@ -94,7 +94,9 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:text="@string/action_sign_in"
-                android:textStyle="bold" />
+                android:background="@color/colorAccent"
+                android:textStyle="bold"
+                android:textColor="#fff"/>
 
             <Button
                 android:id="@+id/email_sign_up_button"
@@ -102,7 +104,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:text="@string/action_sign_up"
+                android:text="@string/nav_sign_up"
+                android:background="@android:color/transparent"
                 android:textStyle="bold" />
 
         </LinearLayout>

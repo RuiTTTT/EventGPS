@@ -31,8 +31,8 @@ public class EventConnectUtils {
 
 
         try {
-//            URL url = new URL("http://csstudent02.ucd.ie:443/EventGPS-api/sql/result/"+ date + "/" + time);
-            URL url = new URL("http://csstudent02.ucd.ie:443/EventGPS-api/sql/result/2018-06-27/19:00:00");
+            URL url = new URL("http://csstudent02.ucd.ie:443/EventGPS-api/sql/result/"+ date + "/" + time);
+//            URL url = new URL("http://csstudent02.ucd.ie:443/EventGPS-api/sql/result/2018-06-27/19:00:00");
             urlConnection = (HttpURLConnection) url.openConnection();
             InputStream in = new BufferedInputStream(urlConnection.getInputStream());
 

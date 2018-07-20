@@ -1,6 +1,7 @@
 package com.example.rui.eventgps;
 
 
+import android.net.Uri;
 import android.support.v4.app.FragmentTransaction;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
@@ -9,16 +10,26 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.firebase.ui.auth.AuthUI;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import java.util.Arrays;
 
 public class MapEventActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
+
     private static final int RC_SIGN_IN = 123;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,6 +62,30 @@ public class MapEventActivity extends AppCompatActivity
         fragmentTransaction.replace(R.id.fragment_container, mMapFragment);
         fragmentTransaction.commit();
 
+        navigationView.removeHeaderView(navigationView.getHeaderView(0));
+        View mView =  navigationView.inflateHeaderView(R.layout.nav_header_map_event);
+//        View header = LayoutInflater.from(this).inflate(R.layout.nav_header_map_event, null);
+        ImageView userIcon = (ImageView) mView.findViewById(R.id.nav_imageView);
+        TextView userName = (TextView) mView.findViewById(R.id.nav_user_name);
+        TextView userEmail = (TextView) mView.findViewById(R.id.nav_user_email);
+
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user != null) {
+            // Name, email address, and profile photo Url
+            String name = user.getDisplayName();
+            String email = user.getEmail();
+            Uri photoUrl = user.getPhotoUrl();
+
+            userName.setText(name);
+            userEmail.setText(email);
+            Glide.with(this)
+                    .load(photoUrl)
+                    .apply(new RequestOptions()
+                    .fitCenter()
+                    .override(280,280)
+                    .circleCrop())
+                    .into(userIcon);
+        }
     }
 
     @Override

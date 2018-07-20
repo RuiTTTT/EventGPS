@@ -5,4 +5,5 @@
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
     <color name="green">#E8F5E9</color>
+    <color name="colorSignBackground">#eee6ff</color>
 </resources>

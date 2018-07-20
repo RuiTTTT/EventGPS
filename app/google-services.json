@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "444569564753",
+    "firebase_url": "https://eventgps-352a3.firebaseio.com",
+    "project_id": "eventgps-352a3",
+    "storage_bucket": "eventgps-352a3.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:444569564753:android:1e8ca6fb20174a1f",
+        "android_client_info": {
+          "package_name": "com.example.rui.eventgps"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "444569564753-l25vg2i0vb4cguk42holij2r6v7f8ka0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDeUyQvgr9EwtawiU4qkFLdbnR5ubsfEPQ"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

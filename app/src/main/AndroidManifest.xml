@@ -24,6 +24,9 @@
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyAx20Dxy6BzGGZRuKxX-JREJ0_2fgwb2qY" />
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="@string/default_notification_channel_id" />
 
         <activity
             android:name=".LaunchActivity"
@@ -38,6 +41,14 @@
             android:name=".MapEventActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".LoginActivity"></activity>
+
+        <service
+            android:name=".MyFirebaseMessagingService">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+            </intent-filter>
+        </service>
+
     </application>
 
 </manifest>

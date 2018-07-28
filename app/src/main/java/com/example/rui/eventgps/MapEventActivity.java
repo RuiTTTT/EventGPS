@@ -2,6 +2,7 @@ package com.example.rui.eventgps;
 
 
 import android.net.Uri;
+import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentTransaction;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
@@ -16,10 +17,13 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.firebase.ui.auth.AuthUI;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
@@ -78,13 +82,15 @@ public class MapEventActivity extends AppCompatActivity
 
             userName.setText(name);
             userEmail.setText(email);
-            Glide.with(this)
-                    .load(photoUrl)
-                    .apply(new RequestOptions()
-                    .fitCenter()
-                    .override(280,280)
-                    .circleCrop())
-                    .into(userIcon);
+            if(photoUrl != null) {
+                Glide.with(this)
+                        .load(photoUrl)
+                        .apply(new RequestOptions()
+                                .fitCenter()
+                                .override(280,280)
+                                .circleCrop())
+                        .into(userIcon);
+            }
         }
     }
 
@@ -146,16 +152,14 @@ public class MapEventActivity extends AppCompatActivity
 
         } else if (id == R.id.nav_profile) {
 
-            startActivityForResult(
-                    AuthUI.getInstance()
-                            .createSignInIntentBuilder()
-                            .setAvailableProviders(Arrays.asList(
-                                    new AuthUI.IdpConfig.GoogleBuilder().build(),
-                                    new AuthUI.IdpConfig.EmailBuilder().build()))
-                            .setLogo(R.drawable.ic_logo_sign)
-                            .setTheme(R.style.SignTheme)
-                            .build(),
-                    RC_SIGN_IN);
+            AuthUI.getInstance()
+                    .signOut(this)
+                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                        public void onComplete(@NonNull Task<Void> task) {
+                            // ...
+                            Toast.makeText(getBaseContext(), "Successfully Sign Out", Toast.LENGTH_SHORT).show();
+                        }
+                    });
 
         } else if (id == R.id.nav_manage) {
 

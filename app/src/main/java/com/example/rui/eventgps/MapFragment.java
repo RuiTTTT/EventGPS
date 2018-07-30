@@ -86,7 +86,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
     private static final LatLng DUBLIN = new LatLng(53.35, -6.26);
     private static final LatLngBounds LAT_LNG_BOUNDS = new LatLngBounds(new LatLng(-40, -168), new LatLng(71, 136));
     private Map<String,String> mSearchData = new HashMap<>();
-    private List<String> routeResult = new ArrayList<>();
+    private List<List> routeResult = new ArrayList<>();
     private List<EventItem> eventResult = new ArrayList<>();
     private List<Integer> polyColor = new ArrayList<>();
 
@@ -409,7 +409,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
         mMap.clear();
         for (int i = 0; i < routeResult.size(); i++) {
 //            route = StringEscapeUtils.unescapeJava(route);
-            String route = routeResult.get(i);
+            List<String> routeInfo = routeResult.get(i);
+            String route = routeInfo.get(0);
             List<LatLng> decodedPath = PolyUtil.decode(route);
             drawPolyLineOnMap(decodedPath, polyColor.get(i));
         }

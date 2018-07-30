@@ -27,8 +27,8 @@ public class RouteConnectUtils {
     private static final String TAG = "RouteConnect";
     static HttpURLConnection urlConnection;
 
-    public static List<String> sendRouteRequest(Map<String, String> searchTerm) {
-        List<String> mRoutes = new ArrayList<>();
+    public static List<List> sendRouteRequest(Map<String, String> searchTerm) {
+        List<List> routeData = new ArrayList<>();
         StringBuilder responseResult = new StringBuilder();
         String mSearchStart = searchTerm.get("mStartLat")+ ',' + searchTerm.get("mStartLng");
         String mSearchDes = searchTerm.get("mDesLat") + "," + searchTerm.get("mDesLng");
@@ -54,16 +54,21 @@ public class RouteConnectUtils {
 
         try {
             JSONObject jsonData = new JSONObject(responseResult.toString());
-            JSONObject jsonRoute = (JSONObject) jsonData.getJSONObject("0");
-            int len = jsonRoute.length();
+//            JSONObject jsonRoute = (JSONObject) jsonData.getJSONObject("0");
+            int len = jsonData.length();
             Log.d(TAG, "length: "+len);
             for (int j = 0; j<len; j++) {
-                String route = jsonRoute.getString(Integer.toString(j));
+                List<String> mRoutes = new ArrayList<>();
+                JSONObject jsonRoute = (JSONObject) jsonData.getJSONObject(Integer.toString(j));
+                String route = jsonRoute.getString("0");
                 mRoutes.add(route);
-//                Log.d(TAG, "Json" + route);
+                String timeEstimated = jsonRoute.getString("1");
+                mRoutes.add(timeEstimated);
+                Log.d(TAG, "Json" + mRoutes);
+                routeData.add(mRoutes);
                 }
-//            Log.d(TAG, "sendRouteRequest: "+mRoutes.toString());
-            return mRoutes;
+            Log.d(TAG, "sendRouteRequest: "+routeData.toString());
+            return routeData;
         } catch (JSONException e) {
             e.printStackTrace();
         }

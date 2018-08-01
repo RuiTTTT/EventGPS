@@ -89,6 +89,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
     private List<List> routeResult = new ArrayList<>();
     private List<EventItem> eventResult = new ArrayList<>();
     private List<Integer> polyColor = new ArrayList<>();
+    private Map<Integer, String> polyTimeSet = new HashMap<>();
 
     @Nullable
     @Override
@@ -237,6 +238,15 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
         mMap.setInfoWindowAdapter(customInfoWindow);
 
         getDeviceLocation();
+
+        mMap.setOnPolylineClickListener(new GoogleMap.OnPolylineClickListener() {
+            @Override
+            public void onPolylineClick(Polyline polyline) {
+                String routeEstimateTime = polyTimeSet.get(polyline.getColor());
+                Snackbar.make(myView, "Estimated Time: " + routeEstimateTime, 3000)
+                        .setAction("Action", null).show();
+            }
+        });
 
     }
 
@@ -413,6 +423,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
             String route = routeInfo.get(0);
             List<LatLng> decodedPath = PolyUtil.decode(route);
             drawPolyLineOnMap(decodedPath, polyColor.get(i));
+            String routeTime = routeInfo.get(1);
+            polyTimeSet.put(polyColor.get(i), routeTime);
         }
 
         if(!eventResult.isEmpty()) {
@@ -433,6 +445,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
         polyOptions.color(color);
         polyOptions.width(12);
         polyOptions.addAll(list);
+        polyOptions.clickable(true);
 
         //mMap.clear();
         mMap.addPolyline(polyOptions);

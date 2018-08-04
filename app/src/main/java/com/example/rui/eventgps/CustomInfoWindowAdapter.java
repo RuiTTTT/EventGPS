@@ -9,7 +9,9 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.Marker;
 
 /**
- * Created by ray on 2018/6/13.
+ * Class for custom info window in event view. Displaying venue name, event title, start time and
+ * end time by clicking the marker on the map. Info is stored as EventItem object type.
+ * Created by rui on 2018/6/13.
  */
 
 public class CustomInfoWindowAdapter implements GoogleMap.InfoWindowAdapter{

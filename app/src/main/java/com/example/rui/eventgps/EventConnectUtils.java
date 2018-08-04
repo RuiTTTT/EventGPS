@@ -18,7 +18,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Created by ray on 2018/6/20.
+ * The class handling connection to our web api for retrieving event data.
+ * Created by rui on 2018/6/20.
  */
 
 public class EventConnectUtils {

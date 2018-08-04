@@ -1,6 +1,7 @@
 package com.example.rui.eventgps;
 
 
+import android.content.pm.ActivityInfo;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentTransaction;
@@ -42,6 +43,8 @@ public class MapEventActivity extends AppCompatActivity
         toolbar.setTitle("EventGPS");
         toolbar.setLogo(R.drawable.ic_logo_icon_action);
         setSupportActionBar(toolbar);
+
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
 //        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
 //        fab.setOnClickListener(new View.OnClickListener() {

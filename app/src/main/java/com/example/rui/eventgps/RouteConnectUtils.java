@@ -67,7 +67,7 @@ public class RouteConnectUtils {
                 Log.d(TAG, "Json" + mRoutes);
                 routeData.add(mRoutes);
                 }
-            Log.d(TAG, "sendRouteRequest: "+routeData.toString());
+//            Log.d(TAG, "sendRouteRequest: "+routeData.toString());
             return routeData;
         } catch (JSONException e) {
             e.printStackTrace();

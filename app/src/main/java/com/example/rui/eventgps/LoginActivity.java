@@ -15,6 +15,9 @@ import com.google.firebase.auth.FirebaseUser;
 
 import java.util.Arrays;
 
+/**
+ * 
+ */
 public class LoginActivity extends AppCompatActivity {
     private static final int RC_SIGN_IN = 123;
     private static final String TAG = "LoginActivity";

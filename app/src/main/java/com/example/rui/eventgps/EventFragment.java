@@ -35,7 +35,9 @@ import java.util.List;
 import static android.content.ContentValues.TAG;
 
 /**
- * Created by ray on 2018/6/9.
+ * The class for event page. Showing all the events on the date selected through date picker.
+ * The event data is get by making request using EventConnectUtils class on a new thread.
+ * Created by rui on 2018/6/9.
  */
 
 public class EventFragment extends Fragment implements OnMapReadyCallback, GoogleMap.OnInfoWindowClickListener {
@@ -65,22 +67,19 @@ public class EventFragment extends Fragment implements OnMapReadyCallback, Googl
         month = mCalendar.get(Calendar.MONTH);
         day = mCalendar.get(Calendar.DAY_OF_MONTH);
 
+        //A floating action button at the bottom right of the screen.
+        //Showing the date picker after clicking the button
         FloatingActionButton fab = myView.findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//                currentDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
-//                Log.d(TAG, "onCreateView: "+currentDate);
-//                try {
-//                    postData();
-//                } catch (InterruptedException e) {
-//                    e.printStackTrace();
-//                }
                 DatePickerDialog datePickerDialog = new DatePickerDialog(getActivity(), new DatePickerDialog.OnDateSetListener() {
                     @Override
                     public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+                        //The default date on the date picker is the current date
                         currentDate = Integer.toString(year) + '-' + Integer.toString(month+1) + '-' + Integer.toString(dayOfMonth);
                         try {
+                            //Call method for making connection request
                             postData();
                         } catch (InterruptedException e) {
                             e.printStackTrace();
@@ -96,24 +95,25 @@ public class EventFragment extends Fragment implements OnMapReadyCallback, Googl
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
-//        Toast.makeText(getContext(), "Load Map", Toast.LENGTH_SHORT).show();
         mMap = googleMap;
+        //Set some map UI settings as true to activate some tools and gestures
         mMap.getUiSettings().setMapToolbarEnabled(true);
         mMap.getUiSettings().setZoomControlsEnabled(true);
         mMap.getUiSettings().setCompassEnabled(true);
 
-
+        //Display custom info window by clicking
         CustomInfoWindowAdapter customInfoWindow = new CustomInfoWindowAdapter(getContext());
         mMap.setInfoWindowAdapter(customInfoWindow);
-
         mMap.setOnInfoWindowClickListener(this);
 
+        //Set the default camera location as Dublin with a proper default zoom as 12f
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(DUBLIN, DEFAULT_ZOOM));
-
-
     }
 
-
+    /**
+     * Method for adding event marker and showing radius on the map.
+     * @param list The list containing event data in EventItem type.
+     */
     private void addEventOnMap(List<EventItem> list) {
         for (EventItem item : list) {
             Marker m = mMap.addMarker(new MarkerOptions().position(item.getLatLng()).title(item.getVenue()));
@@ -136,6 +136,12 @@ public class EventFragment extends Fragment implements OnMapReadyCallback, Googl
         //showPopup(v);
     }
 
+    /**
+     * The method for sending http request to the server using method in EventConnectUtils.
+     * The connection is handled in a new thread to avoid stuck the main thread.
+     * Add markers of all the events returned.
+     * @throws InterruptedException
+     */
     private void postData() throws InterruptedException {
         Log.d(TAG, "post once");
         Thread thread = new Thread(new Runnable() {
@@ -146,6 +152,7 @@ public class EventFragment extends Fragment implements OnMapReadyCallback, Googl
         });
         thread.start();
         thread.join();
+        //Clear map before adding new markers.
         mMap.clear();
         if(!eventList.isEmpty()) {
             addEventOnMap(eventList);
@@ -153,12 +160,19 @@ public class EventFragment extends Fragment implements OnMapReadyCallback, Googl
             Snackbar.make(myView, eventList.size() + " Event(s) found today", 5000)
                     .setAction("Action", null).show();
         } else {
+            //No event is found on that date
             Snackbar.make(myView, "Currently no event", 5000)
                     .setAction("Action", null).show();
         }
 
     }
 
+    /**
+     * Method for displaying more detail information on a popup window after clicked.
+     * The method has been deprecated because it may nor display properly under different
+     * device resolution.
+     * @param anchorView
+     */
     public void showPopup(View anchorView) {
 
         View popupView = getLayoutInflater().inflate(R.layout.popup_layout, null);

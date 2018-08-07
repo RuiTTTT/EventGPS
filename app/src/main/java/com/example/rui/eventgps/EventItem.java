@@ -3,7 +3,8 @@ package com.example.rui.eventgps;
 import com.google.android.gms.maps.model.LatLng;
 
 /**
- * Created by ray on 2018/6/12.
+ * The constructor class for storing event details in a suitable object type.
+ * Created by rui on 2018/6/12.
  */
 
 public class EventItem {

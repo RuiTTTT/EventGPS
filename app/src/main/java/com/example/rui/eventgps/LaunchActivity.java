@@ -18,7 +18,11 @@ import com.viksaa.sssplash.lib.cnst.Flags;
 import com.viksaa.sssplash.lib.model.ConfigSplash;
 
 /**
- * Created by ray on 2018/6/7.
+ * The class for showing a nice launching screen for our app
+ * Permissions and google service are also checked under this class
+ * The library is from AwesomeSplash github repository, author ViksaaSkool
+ * @link <a href="https://github.com/ViksaaSkool/AwesomeSplash">AwesomeSplash</a>
+ * Created by rui on 2018/6/7.
  */
 
 //@see <a href="https://github.com/ViksaaSkool/AwesomeSplash">AwesomeSplash</a>
@@ -56,6 +60,10 @@ public class LaunchActivity extends AwesomeSplash{
     public void onBackPressed() {
     }
 
+    /**
+     * Method for checking google play service. Because google map needs google play service to work.
+     * @return
+     */
     private boolean checkGoogleService() {
         Log.d(TAG, "Check google services version");
         int isAvailable = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(this);
@@ -74,6 +82,11 @@ public class LaunchActivity extends AwesomeSplash{
         return false;
     }
 
+    /**
+     * Method for check location permission
+     * A small window will pop up if permission is nor given to request it
+     * After a successful check, navigate to the login page.
+     */
     private void getLoactionPermission() {
         String[] locationPermission = {Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION};
         if (ContextCompat.checkSelfPermission(this.getApplicationContext(),
@@ -91,6 +104,12 @@ public class LaunchActivity extends AwesomeSplash{
         }
     }
 
+    /**
+     * If the requested permission is allowed, then navigate to the login page.
+     * @param requestCode
+     * @param permissions
+     * @param grantResults
+     */
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         //super.onRequestPermissionsResult(requestCode, permissions, grantResults);

@@ -242,9 +242,16 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
         mMap.setOnPolylineClickListener(new GoogleMap.OnPolylineClickListener() {
             @Override
             public void onPolylineClick(Polyline polyline) {
-                String routeEstimateTime = polyTimeSet.get(polyline.getColor());
-                Snackbar.make(myView, "Estimated Time: " + routeEstimateTime, 3000)
-                        .setAction("Action", null).show();
+                int mPolyColor = polyline.getColor();
+                String routeEstimateTime = polyTimeSet.get(mPolyColor);
+                if(mPolyColor == Color.RED) {
+                    Snackbar.make(myView, "Estimated Time: " + routeEstimateTime + " (primary)", 3000)
+                            .setAction("Action", null).show();
+                }
+                else {
+                    Snackbar.make(myView, "Estimated Time: " + routeEstimateTime + " (alternate)", 3000)
+                            .setAction("Action", null).show();
+                }
             }
         });
 

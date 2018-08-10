@@ -13,12 +13,12 @@
             android:icon="@drawable/ic_map_black_24dp"
             android:title="Map" />
         <item
-            android:id="@+id/nav_profile"
-            android:icon="@drawable/ic_menu_slideshow"
-            android:title="Profile" />
+            android:id="@+id/nav_sign"
+            android:icon="@drawable/ic_directions_run_black_24dp"
+            android:title="Sign Out" />
         <item
             android:id="@+id/nav_manage"
-            android:icon="@drawable/ic_menu_manage"
+            android:icon="@drawable/ic_help_black_24dp"
             android:title="Settings" />
     </group>
 

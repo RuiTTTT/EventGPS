@@ -41,5 +41,6 @@ dependencies {
     }
     annotationProcessor 'com.github.bumptech.glide:compiler:4.7.1'
     implementation "com.android.support:support-fragment:26.1.0"
+    implementation 'com.github.apl-devs:appintro:v4.2.3'
 }
 apply plugin: 'com.google.gms.google-services'

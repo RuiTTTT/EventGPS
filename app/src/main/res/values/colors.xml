@@ -6,4 +6,5 @@
     <color name="colorAccent">#FF4081</color>
     <color name="green">#E8F5E9</color>
     <color name="colorSignBackground">#eee6ff</color>
+    <color name="colorIntro">#2196F3</color>
 </resources>

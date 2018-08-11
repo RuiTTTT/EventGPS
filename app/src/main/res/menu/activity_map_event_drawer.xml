@@ -17,9 +17,9 @@
             android:icon="@drawable/ic_directions_run_black_24dp"
             android:title="Sign Out" />
         <item
-            android:id="@+id/nav_manage"
+            android:id="@+id/nav_help"
             android:icon="@drawable/ic_help_black_24dp"
-            android:title="Settings" />
+            android:title="Help" />
     </group>
 
 </menu>

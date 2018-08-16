@@ -1,7 +1,12 @@
 package com.example.rui.eventgps;
 
 /**
- * Created by ray on 2018/7/28.
+ * The class for receiving and handling clouding message from Firebase platform.
+ * Plan to use the cloud messaging service to push event notification based on saved user
+ * preference.
+ * The notification feature works well after testing. But didn't integrate with user data.
+ * For time reason, this feature has moved to future develop plan.
+ * Created by rui on 2018/7/28.
  */
 
 import android.app.NotificationChannel;

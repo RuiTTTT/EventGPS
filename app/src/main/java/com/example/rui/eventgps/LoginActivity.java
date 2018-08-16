@@ -1,7 +1,6 @@
 package com.example.rui.eventgps;
 
 import android.content.Intent;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -10,13 +9,15 @@ import android.widget.Toast;
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.ErrorCodes;
 import com.firebase.ui.auth.IdpResponse;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 
 import java.util.Arrays;
 
 /**
- *
+ * The class for user login and sign up functionality.
+ * Use Google Firebase platform for the authentication.
+ * Our app allows login through google accountant or an email address.
+ * If sign up with a new email accountant, a verify email will send from the platform.
+ * Created by rui on 2018/7/12.
  */
 public class LoginActivity extends AppCompatActivity {
     private static final int RC_SIGN_IN = 123;
@@ -37,7 +38,12 @@ public class LoginActivity extends AppCompatActivity {
                 RC_SIGN_IN);
     }
 
-
+    /**
+     * The method handling login response.
+     * @param requestCode
+     * @param resultCode The result code for different actions
+     * @param data
+     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -46,7 +52,7 @@ public class LoginActivity extends AppCompatActivity {
             IdpResponse response = IdpResponse.fromResultIntent(data);
 
             if (resultCode == RESULT_OK) {
-                // Successfully signed in
+                // Successfully signed in, navigate to the map page
 //                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
                 startActivity(new Intent(LoginActivity.this, MapEventActivity.class));
                 finish();

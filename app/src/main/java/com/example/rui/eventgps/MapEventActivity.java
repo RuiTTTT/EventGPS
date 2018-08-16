@@ -28,10 +28,17 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+/**
+ * The class for navigation drawer layout. By tap or slide the left side, a drawer menu will
+ * come out.
+ * The menu is consist of two parts.
+ * The first part displaying basic information for the user logged in, like user icon, name and
+ * email address.
+ * The second part containing four menu items, event, map, sign out and help.
+ */
 public class MapEventActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    private static final int RC_SIGN_IN = 123;
     private ImageView userIcon;
     private TextView userName;
     private TextView userEmail;
@@ -40,21 +47,15 @@ public class MapEventActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map_event);
+        //Set the toolbar on the top of the app with a name and small logo.
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setTitle("EventGPS");
         toolbar.setLogo(R.drawable.ic_logo_icon_action);
         setSupportActionBar(toolbar);
 
+        //Lock the screen from rotating
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
-//        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-//        fab.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                        .setAction("Action", null).show();
-//            }
-//        });
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -65,14 +66,15 @@ public class MapEventActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+        //The default fragment to display
         MapFragment mMapFragment = new MapFragment();
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         fragmentTransaction.replace(R.id.fragment_container, mMapFragment);
         fragmentTransaction.commit();
 
+        //Get the logged in user info and display it.
         navigationView.removeHeaderView(navigationView.getHeaderView(0));
         View mView =  navigationView.inflateHeaderView(R.layout.nav_header_map_event);
-//        View header = LayoutInflater.from(this).inflate(R.layout.nav_header_map_event, null);
         userIcon = (ImageView) mView.findViewById(R.id.nav_imageView);
         userName = (TextView) mView.findViewById(R.id.nav_user_name);
         userEmail = (TextView) mView.findViewById(R.id.nav_user_email);
@@ -86,6 +88,7 @@ public class MapEventActivity extends AppCompatActivity
 
             userName.setText(name);
             userEmail.setText(email);
+            //Glide is used for quickly load photo
             if(photoUrl != null) {
                 Glide.with(this)
                         .load(photoUrl)
@@ -103,6 +106,11 @@ public class MapEventActivity extends AppCompatActivity
         return false;
     }
 
+    /**
+     * The method handling back button press action.
+     * The drawer will closed if it is opened already.
+     * If not, handle as normal.
+     */
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -141,6 +149,7 @@ public class MapEventActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
+        //If event item is selected, navigate to the event page.
         if (id == R.id.nav_event) {
             // Handle the camera action
             EventFragment mEventFragment = new EventFragment();
@@ -148,12 +157,16 @@ public class MapEventActivity extends AppCompatActivity
             fragmentTransaction.replace(R.id.fragment_container, mEventFragment);
             fragmentTransaction.commit();
 
+            //If map item is selected, navigate to the map page.
         } else if (id == R.id.nav_map) {
             MapFragment mMapFragment = new MapFragment();
             FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
             fragmentTransaction.replace(R.id.fragment_container, mMapFragment);
             fragmentTransaction.commit();
 
+            //If sign out item is selected, check user status first.
+            //If there's a user logged in, sign out the user and change the text to sign in
+            //If no user logged in now, navigate to the login page instead,
         } else if (id == R.id.nav_sign) {
             item.setCheckable(false);
             if(item.getTitle() == "Sign In") {
@@ -167,15 +180,14 @@ public class MapEventActivity extends AppCompatActivity
                                 Toast.makeText(getBaseContext(), "Successfully Sign Out", Toast.LENGTH_SHORT).show();
                             }
                         });
+                //Set user information displayed as default after user sign out.
                 userName.setText("User Name");
                 userEmail.setText("user.name@eventgps.com");
                 userIcon.setImageResource(R.mipmap.ic_launcher_round);
                 item.setTitle("Sign In");
             }
 
-
-
-
+            //If help item is selected, navigate to the help page.
         } else if (id == R.id.nav_help) {
             startActivity(new Intent(this, IntroActivity.class));
         }

@@ -15,7 +15,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * The class handling connection to our web api for retrieving event data.
@@ -43,7 +42,7 @@ public class EventConnectUtils {
         try {
             //Our web api url
             URL url = new URL("http://csstudent02.ucd.ie:443/EventGPS-api/sql/result/"+ date + "/" + time);
-//            URL url = new URL("http://csstudent02.ucd.ie:443/EventGPS-api/sql/result/"+ date + "/" + "19:'00:00");
+            //Test case used for demo
 //            URL url = new URL("http://csstudent02.ucd.ie:443/EventGPS-api/sql/result/2018-08-04/17:45:00");
             urlConnection = (HttpURLConnection) url.openConnection();
             InputStream in = new BufferedInputStream(urlConnection.getInputStream());

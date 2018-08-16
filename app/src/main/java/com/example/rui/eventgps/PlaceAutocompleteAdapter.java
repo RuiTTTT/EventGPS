@@ -1,7 +1,7 @@
 package com.example.rui.eventgps;
 
 /**
- * The class for achieving autocomplete during searching.
+ * The class for achieving autocomplete in the search box during searching.
  * The code is from Android PlaceCompleteAdapter Sample in googlesamples github repository.
  * @link https://github.com/googlesamples/android-play-places/tree/master/PlaceCompleteAdapter
  * Created by rui on 2018/6/6.

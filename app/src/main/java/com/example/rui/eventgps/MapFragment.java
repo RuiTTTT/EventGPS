@@ -49,7 +49,6 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.maps.android.PolyUtil;
 
-import org.apache.commons.text.StringEscapeUtils;
 
 import java.io.IOException;
 import java.text.DateFormat;
@@ -63,7 +62,8 @@ import java.util.Map;
 import java.util.TimeZone;
 
 /**
- * Created by ray on 2018/6/9.
+ *
+ * Created by rui on 2018/6/9.
  */
 
 public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleMap.OnMyLocationClickListener, GoogleApiClient.OnConnectionFailedListener{
@@ -95,7 +95,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         myView = inflater.inflate(R.layout.fragment_map, container, false);
-//        ((AppCompatActivity) getActivity()).getSupportActionBar().hide();
         mMapView = (MapView) myView.findViewById(R.id.map);
         mMapView.onCreate(savedInstanceState);
         mMapView.onResume();
@@ -108,24 +107,29 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
         clearDes.setVisibility(View.INVISIBLE);
         navButton = (Button) myView.findViewById(R.id.go);
 
+        //Get the system date and time for making route and event check.
         currentDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
         DateFormat df = DateFormat.getTimeInstance();
         df.setTimeZone(TimeZone.getTimeZone("GMT+01:00"));
         currentTime = df.format(new Date(System.currentTimeMillis()));
         Log.d(TAG, "onCreateView: " + currentDate + ' ' + currentTime);
 
+        //Set the default search data as empty, so the connection is not made with empty search term.
         mSearchData.put("mStartLat", "");
         mSearchData.put("mStartLng", "");
         mSearchData.put("mDesLat", "");
         mSearchData.put("mDesLng", "");
 
+        //set the source and destination search box in a single line.
         mStartText.setSingleLine();
         mDesText.setSingleLine();
 
+        //The preset colour for route display.
         polyColor.add(Color.RED);
         polyColor.add(Color.BLUE);
         polyColor.add(Color.GREEN);
 
+        //A listener to detect text change. If so, show the clear button to clear the search box.
         mStartText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -147,6 +151,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
             }
         });
 
+        //A listener to detect text change. If so, show the clear button to clear the search box.
         mDesText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -168,6 +173,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
             }
         });
 
+        //The clear button listener to clear the search box and hide the button afterward.
         clearStart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -177,6 +183,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
             }
         });
 
+        //The clear button listener to clear the search box and hide the button afterward.
         clearDes.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -189,12 +196,14 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
         initMap();
         initSearch();
 
-
-
         return myView;
     }
 
-
+    /**
+     * The method handle pause action when our app is not in the front.
+     * Error may occur for the autocomplete search box using google api client.
+     * Disconnect the connection first to fix it.
+     */
     @Override
     public void onPause() {
         super.onPause();
@@ -210,40 +219,24 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
     public void onMapReady(GoogleMap googleMap) {
         Toast.makeText(getContext(), "Load Map", Toast.LENGTH_SHORT).show();
         mMap = googleMap;
+        //Show some google map built-in map tools.
         mMap.getUiSettings().setMapToolbarEnabled(true);
         mMap.getUiSettings().setZoomControlsEnabled(true);
         mMap.getUiSettings().setCompassEnabled(true);
 
-//        mMap.setOnPolylineClickListener(new GoogleMap.OnPolylineClickListener() {
-//            @Override
-//            public void onPolylineClick(Polyline polyline) {
-//                polyline.setColor(polyline.getColor() ^ 0x00ffffff);
-//            }
-//        });
-
-//        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(-33.8256, 151.2395), 12));
-//        mMap.addMarker(new MarkerOptions().position(DUBLIN).title("Marker in Dublin"));
-//        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(DUBLIN, DEFAULT_ZOOM));
-
-//        mMap.setOnMyLocationClickListener((GoogleMap.OnMyLocationClickListener) getContext());
-//        try {
-//            if (mLocationPermission) {
-//                mMap.setMyLocationEnabled(true);
-//            }
-//        } catch (SecurityException e) {
-//            Log.e(TAG, "getDeviceLacation: SecurityException: " + e.getMessage());
-//        }
-
         CustomInfoWindowAdapter customInfoWindow = new CustomInfoWindowAdapter(getContext());
         mMap.setInfoWindowAdapter(customInfoWindow);
 
+        //Get device location as the current location for the default source.
         getDeviceLocation();
 
+        //Listener handling click event on route polylines. Show estimated travel time after clicking.
         mMap.setOnPolylineClickListener(new GoogleMap.OnPolylineClickListener() {
             @Override
             public void onPolylineClick(Polyline polyline) {
                 int mPolyColor = polyline.getColor();
                 String routeEstimateTime = polyTimeSet.get(mPolyColor);
+                //Red polyline is the primary route.
                 if(mPolyColor == Color.RED) {
                     Snackbar.make(myView, "Estimated Time: " + routeEstimateTime + " (primary)", 3000)
                             .setAction("Action", null).show();
@@ -262,7 +255,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
 
     }
 
-
+    /**
+     * The method for initializing two search box and connect to google place api using google
+     * api client for search term autocompletion.
+     */
     private void initSearch() {
         mGoogleApiClient = new GoogleApiClient
                 .Builder(getContext())
@@ -273,6 +269,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
 
         mPlaceAutocompleteAdapter = new PlaceAutocompleteAdapter(getContext(), mGoogleApiClient, LAT_LNG_BOUNDS, null);
 
+        //The click listener for start search box.
+        //After user click the autocomplete item, the lat/lng information of source will be updated
+        //as value in mSearchData which will then be passed to the server.
         mStartText.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -289,6 +288,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
             }
         });
         mStartText.setAdapter(mPlaceAutocompleteAdapter);
+        //Handle the user enter event for clicking key done, down, enter, search
         mStartText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
@@ -296,13 +296,14 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
                         || actionId == EditorInfo.IME_ACTION_SEARCH
                         || actionId == KeyEvent.ACTION_DOWN
                         || actionId == KeyEvent.KEYCODE_ENTER) {
-                    //search method
-//                    searchLocation(mStartText);
                 }
                 return false;
             }
         });
 
+        //The click listener for destination search box.
+        //After user click the autocomplete item, the lat/lng information of destination will be
+        //updated as value in mSearchData which will then be passed to the server.
         mDesText.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -319,6 +320,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
             }
         });
         mDesText.setAdapter(mPlaceAutocompleteAdapter);
+        //Handle the user enter event for clicking key done, down, enter, search
         mDesText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
@@ -326,15 +328,13 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
                         || actionId == EditorInfo.IME_ACTION_SEARCH
                         || actionId == KeyEvent.ACTION_DOWN
                         || actionId == KeyEvent.KEYCODE_ENTER) {
-                    //search method
-//                    searchLocation(mDesText);
-//                    drawPolyLineOnMap(mList);
                 }
                 return false;
             }
         });
-//        getDeviceLocation();
 
+        //The button to start route search.
+        //Call method for posting the source/destination data to the server unless it is empty.
         navButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -353,33 +353,45 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
 
     }
 
+    /**
+     * Method for decoding the autocomplete return result from google server.
+     * For a search location, it first decode the top result. Then get the latitude and longitude
+     * of the location if it's not empty.
+     * @param searchTerm The String tpye search term user enters in
+     * @return A LatLng type geolocation of the search term.
+     */
     public LatLng searchLocation(String searchTerm) {
         hideKeyboard();
         Geocoder geocoder = new Geocoder(getContext());
         List<Address> returnList = new ArrayList<>();
         try {
+            //Set the max number of result return as 1.
             returnList = geocoder.getFromLocationName(searchTerm, 1);
         } catch (IOException e) {
             Log.e(TAG, "Location IOException");
         }
 
+        //The return list is empty if a invalid search term entered.
         if (!returnList.isEmpty()) {
             Address mAddress = returnList.get(0);
             LatLng mLoc = new LatLng(mAddress.getLatitude(), mAddress.getLongitude());
-//            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(mLoc, DEFAULT_ZOOM));
-//            MarkerOptions options = new MarkerOptions().position(mLoc).title(mAddress.getAddressLine(0));
-//            mMap.addMarker(options);
             return mLoc;
 
         }
         return null;
     }
 
+    /**
+     * The method for hiding virtual keyboard.
+     */
     private void hideKeyboard() {
         InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(mStartText.getWindowToken(), 0);
     }
 
+    /**
+     * Method for getting the device current location as the default source in the search box.
+     */
     private void getDeviceLocation() {
     /*
      * Get the best and most recent location of the device, which may be null in rare
@@ -410,11 +422,22 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
                 });
     }
 
+    /**
+     * Method for posting search data to the server using the two Utils class.
+     * The task is running on a new thread to avoid stuck the main thread to enhance user experience
+     * and speed.
+     * The result get back from web server contains 2-3 encoded route path and their corresponding
+     * estimated travel time. Use drawPolyLineOnMap method to draw the route and show information
+     * at the bottom using Snackbar.
+     * @throws InterruptedException
+     */
     private void postData() throws InterruptedException {
         Log.d(TAG, "post once");
+        //Create a new thread
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
+                //Call two web api
                 routeResult = RouteConnectUtils.sendRouteRequest(mSearchData);
 //                Log.i(TAG, "run: "+ routeResult.size());
                 eventResult = EventConnectUtils.sendEventRequest(currentDate, currentTime);
@@ -422,18 +445,21 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
             }
         });
         thread.start();
+        //Join the thread back to main thread
         thread.join();
         mMap.clear();
         for (int i = 0; i < routeResult.size(); i++) {
-//            route = StringEscapeUtils.unescapeJava(route);
             List<String> routeInfo = routeResult.get(i);
             String route = routeInfo.get(0);
+            //Decode the route path into a list
             List<LatLng> decodedPath = PolyUtil.decode(route);
+            //Draw route on the map
             drawPolyLineOnMap(decodedPath, polyColor.get(i));
             String routeTime = routeInfo.get(1);
             polyTimeSet.put(polyColor.get(i), routeTime);
         }
 
+        //Show result information at the bottom
         if(!eventResult.isEmpty()) {
             addEventOnMap(eventResult);
 //            Log.d(TAG, "Add event on map: "+eventResult.size());
@@ -446,7 +472,11 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
 
     }
 
-    // Draw polyline on map
+    /**
+     * Method for drawing polyline to display route path on the map.
+     * @param list List of LatLng type points along the route.
+     * @param color The colour of polyline, red, blue and green.
+     */
     public void drawPolyLineOnMap(List<LatLng> list, int color) {
         PolylineOptions polyOptions = new PolylineOptions();
         polyOptions.color(color);
@@ -454,7 +484,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
         polyOptions.addAll(list);
         polyOptions.clickable(true);
 
-        //mMap.clear();
         mMap.addPolyline(polyOptions);
 
         if(! list.isEmpty()) {
@@ -465,14 +494,18 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
 
             final LatLngBounds bounds = builder.build();
 
-            //BOUND_PADDING is an int to specify padding of bound.. try 100.
-
             CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, mMapView.getWidth(), mMapView.getHeight(),120);
             mMap.animateCamera(cu);
         }
 
     }
 
+    /**
+     * Method adding events on the map using markers.
+     * By clicking the marker, a information box containing details will be displayed.
+     * A radius around event venue is also drawn on the map.
+     * @param list A list of event in EventItem type.
+     */
     private void addEventOnMap(List<EventItem> list) {
         for (EventItem item : list) {
             Marker m = mMap.addMarker(new MarkerOptions().position(item.getLatLng()).title(item.getVenue()));
